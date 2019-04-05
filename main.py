@@ -1,9 +1,19 @@
 from tkinter import *
-from tkinter import ttk  
+from tkinter import ttk
+from init import Initializer
 
-root = Tk()
-root.geometry("1000x800")
-root.style = ttk.Style()
-root.style.theme_use('clam')
 
-root.mainloop()
+class App:
+    def __init__(self, main_window):
+        initializer = Initializer(main_window)
+        initializer.init_canvas()
+
+
+if __name__ == "__main__":
+    main_window = Tk()
+    main_window.geometry("1000x800")
+    main_window.style = ttk.Style()
+    main_window.style.theme_use('clam')
+
+    app = App(main_window)
+    main_window.mainloop()
