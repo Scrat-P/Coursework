@@ -7,6 +7,7 @@ class App:
     def __init__(self, main_window):
         initializer = Initializer(main_window)
         initializer.init_canvas()
+        initializer.init_menubar()
 
 
 if __name__ == "__main__":
