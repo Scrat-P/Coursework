@@ -1,0 +1,7 @@
+*.pyc
+*.log
+*.db
+build/
+dist/
+*.egg-info/
+*.sqlite3
