@@ -1,9 +1,13 @@
+import os
 from tkinter import *
 from tkinter import ttk
 from PIL import Image, ImageTk
 
 
-class App:
+IMAGES_FOLDER_PATH = 'images'
+
+
+class App(dict):
     def __init__(self, main_window):
         self.main_window = main_window
         self.main_window.title("Paint")
@@ -14,6 +18,8 @@ class App:
 
         self._init_canvas()
         self._init_menubar()
+        self._init_icon_toolbar()
+        self._init_color_picker()
 
     def _init_canvas(self):
         self.canvas = Canvas(self.main_window, bg=self.background_color)
@@ -38,7 +44,42 @@ class App:
 
         self.main_window.config(menu=menubar)
 
+    def _create_button_image(self, img, size):
+        image_path = os.path.join(IMAGES_FOLDER_PATH, f"{img}.png")
+        img_obj = Image.open(image_path).resize(size, Image.ANTIALIAS)
+        self[img] = ImageTk.PhotoImage(img_obj)
+
+    def _init_icon_toolbar(self):
+        self._create_button_image('dark_img', (20, 20))
+        self._create_button_image('red_img', (20, 20))
+        self._create_button_image('green_img', (20, 20))
+        self._create_button_image('yellow_img', (20, 20))
+        self._create_button_image('orange_img', (20, 20))
+        self._create_button_image('purple_img', (20, 20))
+        self._create_button_image('blue_malibu_img', (20, 20))
+        self._create_button_image('blue_light_img', (20, 20))
+        self._create_button_image('pink_img', (20, 20))
+
+    def _create_button(self, toolbar, img, button_name, button_event):
+        self[button_name] = Button(toolbar, image=img, command=button_event)
+        self[button_name].pack(side=LEFT, fill=X)
+
     def _init_color_picker(self):
+        self.color_toolbar = Frame(self.main_window, borderwidth=2, relief='raised')
+
+        self._create_button(self.color_toolbar, self['dark_img'], 'dark_btn', lambda: self.on_change_color(dark, 'dark_btn'))
+        self._create_button(self.color_toolbar, self['red_img'], 'red_btn', lambda: self.on_change_color(red, 'red_btn'))
+        self._create_button(self.color_toolbar, self['green_img'], 'green_btn', lambda: self.on_change_color(green, 'green_btn'))
+        self._create_button(self.color_toolbar, self['yellow_img'], 'yellow_btn', lambda: self.on_change_color(yellow, 'yellow_btn'))
+        self._create_button(self.color_toolbar, self['orange_img'], 'orange_btn', lambda: self.on_change_color(orange, 'orange_btn'))
+        self._create_button(self.color_toolbar, self['pink_img'], 'pink_btn', lambda: self.on_change_color(pink, 'pink_btn'))
+        self._create_button(self.color_toolbar, self['blue_light_img'], 'blueLight_btn', lambda: self.on_change_color(blueLight, 'blueLight_btn'))
+        self._create_button(self.color_toolbar, self['blue_malibu_img'], 'blueMalibu_btn', lambda: self.on_change_color(blueMalibu, 'blueMalibu_btn'))
+        self._create_button(self.color_toolbar, self['purple_img'], 'purple_btn', lambda: self.on_change_color(purple, 'purple_btn'))
+
+        self.color_toolbar.pack(side=BOTTOM, fill=X)
+
+    def on_change_color():
         pass
 
 
