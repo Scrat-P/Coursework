@@ -2,10 +2,20 @@ import os
 from tkinter import *
 from tkinter import ttk
 from PIL import Image, ImageTk
+import drawing_functions as df
 
 
 IMAGES_FOLDER_PATH = 'images'
-
+RED_COLOR = (255, 0, 0)
+DARK_COLOR = (0, 0, 0)
+GREEN_COLOR = (0, 255, 0)
+YELLOW_COLOR = (255, 204, 0)
+ORANGE_COLOR = (255, 102, 0)
+WHITE_COLOR = (255, 255, 255)
+PINK_COLOR = (255, 186, 210)
+BLUE_LIGHT_COLOR = (0, 153, 204)
+BLUE_MALIBU_COLOR = (102, 204, 255)
+PURPLE_COLOR = (102, 0, 204)
 
 class App(dict):
     def __init__(self, main_window):
@@ -20,6 +30,15 @@ class App(dict):
         self._init_menubar()
         self._init_icon_toolbar()
         self._init_color_picker()
+
+        self.active_color = RED_COLOR
+        # self.active_button = self['pencil_btn']
+        self.color_button = self['red_btn']
+
+        self.paper = Image.new("RGB", (self.canvas_width, self.canvas_height), self.background_color)
+        self.usePaper = ImageTk.PhotoImage(self.paper)
+
+        self.draw_pencil_tool()
 
     def _init_canvas(self):
         self.canvas = Canvas(self.main_window, bg=self.background_color)
@@ -67,20 +86,45 @@ class App(dict):
     def _init_color_picker(self):
         self.color_toolbar = Frame(self.main_window, borderwidth=2, relief='raised')
 
-        self._create_button(self.color_toolbar, self['dark_img'], 'dark_btn', lambda: self.on_change_color(dark, 'dark_btn'))
-        self._create_button(self.color_toolbar, self['red_img'], 'red_btn', lambda: self.on_change_color(red, 'red_btn'))
-        self._create_button(self.color_toolbar, self['green_img'], 'green_btn', lambda: self.on_change_color(green, 'green_btn'))
-        self._create_button(self.color_toolbar, self['yellow_img'], 'yellow_btn', lambda: self.on_change_color(yellow, 'yellow_btn'))
-        self._create_button(self.color_toolbar, self['orange_img'], 'orange_btn', lambda: self.on_change_color(orange, 'orange_btn'))
-        self._create_button(self.color_toolbar, self['pink_img'], 'pink_btn', lambda: self.on_change_color(pink, 'pink_btn'))
-        self._create_button(self.color_toolbar, self['blue_light_img'], 'blueLight_btn', lambda: self.on_change_color(blueLight, 'blueLight_btn'))
-        self._create_button(self.color_toolbar, self['blue_malibu_img'], 'blueMalibu_btn', lambda: self.on_change_color(blueMalibu, 'blueMalibu_btn'))
-        self._create_button(self.color_toolbar, self['purple_img'], 'purple_btn', lambda: self.on_change_color(purple, 'purple_btn'))
+        self._create_button(self.color_toolbar, self['dark_img'], 'dark_btn', lambda: self.on_change_color(DARK_COLOR, 'dark_btn'))
+        self._create_button(self.color_toolbar, self['red_img'], 'red_btn', lambda: self.on_change_color(RED_COLOR, 'red_btn'))
+        self._create_button(self.color_toolbar, self['green_img'], 'green_btn', lambda: self.on_change_color(GREEN_COLOR, 'green_btn'))
+        self._create_button(self.color_toolbar, self['yellow_img'], 'yellow_btn', lambda: self.on_change_color(YELLOW_COLOR, 'yellow_btn'))
+        self._create_button(self.color_toolbar, self['orange_img'], 'orange_btn', lambda: self.on_change_color(ORANGE_COLOR, 'orange_btn'))
+        self._create_button(self.color_toolbar, self['pink_img'], 'pink_btn', lambda: self.on_change_color(PINK_COLOR, 'pink_btn'))
+        self._create_button(self.color_toolbar, self['blue_light_img'], 'blue_light_btn', lambda: self.on_change_color(BLUE_LIGHT_COLOR, 'blue_light_btn'))
+        self._create_button(self.color_toolbar, self['blue_malibu_img'], 'blue_malibu_btn', lambda: self.on_change_color(BLUE_MALIBU_COLOR, 'blue_malibu_btn'))
+        self._create_button(self.color_toolbar, self['purple_img'], 'purple_btn', lambda: self.on_change_color(PURPLE_COLOR, 'purple_btn'))
 
         self.color_toolbar.pack(side=BOTTOM, fill=X)
 
-    def on_change_color():
-        pass
+    def on_change_color(self, color, color_button_name):   
+        self.color_button.config(relief=RAISED)
+        
+        self.color_button = self[color_button_name]
+        self.color_button.config(relief=SUNKEN)
+        
+        self.active_color = color
+
+    def draw_pencil_tool(self):
+        self.canvas.config(cursor="pencil")
+        self.canvas.bind("<ButtonPress-1>", self.on_button_press)
+        self.canvas.bind("<B1-Motion>", self.on_button_draw_pencil)
+        self.canvas.bind("<ButtonRelease-1>", self.on_button_draw_pencil)
+
+    def on_button_press(self, event):
+        self.x = event.x
+        self.y = event.y
+
+    def on_button_draw_pencil(self, event):
+        previous_point = (self.x, self.y)
+        current_point = (event.x, event.y)
+
+        self.pencil_img = df.draw_with_pencil(previous_point, current_point, self.active_color, self.paper)
+        self.canvas.create_image(self.canvas_width / 2, self.canvas_height / 2, image=self.pencil_img)
+
+        self.x = event.x
+        self.y = event.y
 
 
 if __name__ == "__main__":
