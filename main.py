@@ -23,6 +23,7 @@ class App(dict):
     def __init__(self, main_window):
         self.main_window = main_window
         self.main_window.title("Paint")
+        self.frame = Frame(self.main_window)
 
         self.canvas_width = 1000
         self.canvas_height = 800
@@ -36,8 +37,7 @@ class App(dict):
         self.active_color = RED_COLOR
         self.color_button = self['red_btn']
 
-        self.paper = Image.new("RGB", (self.canvas_width, self.canvas_height), self.background_color)
-        self.usePaper = ImageTk.PhotoImage(self.paper)
+        self.img = Image.new("RGB", (self.canvas_width, self.canvas_height), self.background_color)
 
         self.draw_pencil_tool()
 
@@ -55,14 +55,27 @@ class App(dict):
 
         file_menu = Menu(menubar, tearoff=0)
         menubar.add_cascade(label="File", menu=file_menu)
-        file_menu.add_command(label="New")
+        file_menu.add_command(label="New", command=self.call_new_canvas)
         file_menu.add_command(label="Open")
         file_menu.add_command(label="Save as...", command=self.call_save_as_image)
-        file_menu.add_command(label="Exit")
+        file_menu.add_command(label="Exit", command=self.frame.quit)
 
         menubar.add_command(label="About")
 
         self.main_window.config(menu=menubar)
+
+    def call_save_as_image(self):
+        fname = filedialog.asksaveasfilename(defaultextension=".png")
+
+        if fname is not None:
+            self.img.save(fname)
+
+    def call_new_canvas(self):
+        self.canvas.delete("all")
+        self.img = Image.new("RGB", (self.canvas_width, self.canvas_height), self.background_color)
+
+        self.canvas.img = ImageTk.PhotoImage(self.img)
+        self.canvas.create_image(0, 0, image=self.canvas.img)
 
     def _create_button_image(self, img, size):
         image_path = os.path.join(IMAGES_FOLDER_PATH, f"{img}.png")
@@ -107,12 +120,6 @@ class App(dict):
         
         self.active_color = color
 
-    def call_save_as_image(self):
-        fname = filedialog.asksaveasfilename(defaultextension=".png")
-
-        if fname is not None:
-            self.paper.save(fname)
-
     def draw_pencil_tool(self):
         self.canvas.config(cursor="pencil")
         self.canvas.bind("<ButtonPress-1>", self.on_button_press)
@@ -127,7 +134,7 @@ class App(dict):
         previous_point = (self.x, self.y)
         current_point = (event.x, event.y)
 
-        self.pencil_img = df.draw_with_pencil(previous_point, current_point, self.active_color, self.paper)
+        self.pencil_img = df.draw_with_pencil(previous_point, current_point, self.active_color, self.img)
         self.canvas.create_image(self.canvas_width / 2, self.canvas_height / 2, image=self.pencil_img)
 
         self.x = event.x
