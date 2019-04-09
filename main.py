@@ -1,6 +1,7 @@
 import os
 from tkinter import *
 from tkinter import ttk
+from tkinter import filedialog
 from PIL import Image, ImageTk
 import drawing_functions as df
 
@@ -17,6 +18,7 @@ BLUE_LIGHT_COLOR = (0, 153, 204)
 BLUE_MALIBU_COLOR = (102, 204, 255)
 PURPLE_COLOR = (102, 0, 204)
 
+
 class App(dict):
     def __init__(self, main_window):
         self.main_window = main_window
@@ -32,7 +34,6 @@ class App(dict):
         self._init_color_picker()
 
         self.active_color = RED_COLOR
-        # self.active_button = self['pencil_btn']
         self.color_button = self['red_btn']
 
         self.paper = Image.new("RGB", (self.canvas_width, self.canvas_height), self.background_color)
@@ -56,7 +57,7 @@ class App(dict):
         menubar.add_cascade(label="File", menu=file_menu)
         file_menu.add_command(label="New")
         file_menu.add_command(label="Open")
-        file_menu.add_command(label="Save as...")
+        file_menu.add_command(label="Save as...", command=self.call_save_as_image)
         file_menu.add_command(label="Exit")
 
         menubar.add_command(label="About")
@@ -105,6 +106,12 @@ class App(dict):
         self.color_button.config(relief=SUNKEN)
         
         self.active_color = color
+
+    def call_save_as_image(self):
+        fname = filedialog.asksaveasfilename(defaultextension=".png")
+
+        if fname is not None:
+            self.paper.save(fname)
 
     def draw_pencil_tool(self):
         self.canvas.config(cursor="pencil")
