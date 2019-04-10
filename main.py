@@ -50,6 +50,21 @@ class App(dict):
         self.canvas.img = ImageTk.PhotoImage(self.img)
         self.canvas.create_image(0, 0, image=self.canvas.img)
 
+        self.canvas.bind("<Configure>", self.configure)
+
+    def configure(self, event):
+        self.canvas.delete("all")
+        self.canvas_width = event.width
+        self.canvas_height = event.height
+
+        #mask = Image.new("RGB", (self.canvas_width, self.canvas_height), self.background_color)
+        #self.img = Image.composite(self.img, mask, self.img)
+
+        self.img = self.img.resize((self.canvas_width, self.canvas_height))
+
+        self.canvas.img = ImageTk.PhotoImage(self.img)
+        self.canvas.create_image(0, 0, image=self.canvas.img)
+
     def _init_menubar(self):
         menubar = Menu(self.main_window)
 
