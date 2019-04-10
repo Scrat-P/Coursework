@@ -56,7 +56,7 @@ class App(dict):
         file_menu = Menu(menubar, tearoff=0)
         menubar.add_cascade(label="File", menu=file_menu)
         file_menu.add_command(label="New", command=self.call_new_canvas)
-        file_menu.add_command(label="Open")
+        file_menu.add_command(label="Open", command=self.call_open_image)
         file_menu.add_command(label="Save as...", command=self.call_save_as_image)
         file_menu.add_command(label="Exit", command=self.frame.quit)
 
@@ -65,10 +65,10 @@ class App(dict):
         self.main_window.config(menu=menubar)
 
     def call_save_as_image(self):
-        fname = filedialog.asksaveasfilename(defaultextension=".png")
+        file_name = filedialog.asksaveasfilename(defaultextension=".png")
 
-        if fname is not None:
-            self.img.save(fname)
+        if file_name is not None:
+            self.img.save(file_name)
 
     def call_new_canvas(self):
         self.canvas.delete("all")
@@ -76,6 +76,22 @@ class App(dict):
 
         self.canvas.img = ImageTk.PhotoImage(self.img)
         self.canvas.create_image(0, 0, image=self.canvas.img)
+
+    def call_open_image(self):
+        file_name = filedialog.askopenfilename(
+            filetypes=(
+                ("Supported image files", "*.jpg *.jpeg *.png *.bmp *.ico"),
+                ("All files", "*.*") 
+            )
+        )
+
+        if file_name is not None:
+            self.canvas.delete("all")
+
+            self.img = Image.open(file_name).resize((self.canvas_width, self.canvas_height))
+
+            self.canvas.img = ImageTk.PhotoImage(self.img)
+            self.canvas.create_image(0, 0, image=self.canvas.img)
 
     def _create_button_image(self, img, size):
         image_path = os.path.join(IMAGES_FOLDER_PATH, f"{img}.png")
