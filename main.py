@@ -6,7 +6,11 @@ from PIL import Image, ImageTk
 import drawing_functions as df
 
 
+APP_TITLE = 'Online Paint'
 IMAGES_FOLDER_PATH = 'images'
+BACKGROUND_COLOR = 'white'
+IMG_INITIAL_WIDTH = 1000
+IMG_INITIAL_HEIGHT = 800
 RED_COLOR = (255, 0, 0)
 DARK_COLOR = (0, 0, 0)
 GREEN_COLOR = (0, 255, 0)
@@ -22,12 +26,12 @@ PURPLE_COLOR = (102, 0, 204)
 class App(dict):
     def __init__(self, main_window):
         self.main_window = main_window
-        self.main_window.title("Paint")
+        self.main_window.title(APP_TITLE)
         self.frame = Frame(self.main_window)
 
-        self.canvas_width = 1000
-        self.canvas_height = 800
-        self.background_color = "white"
+        self.img_width = IMG_INITIAL_WIDTH
+        self.img_height = IMG_INITIAL_HEIGHT
+        self.background_color = BACKGROUND_COLOR
 
         self._init_canvas()
         self._init_menubar()
@@ -37,15 +41,13 @@ class App(dict):
         self.active_color = RED_COLOR
         self.color_button = self['red_btn']
 
-        self.img = Image.new("RGB", (self.canvas_width, self.canvas_height), self.background_color)
-
         self.draw_pencil_tool()
 
     def _init_canvas(self):
         self.canvas = Canvas(self.main_window, bg=self.background_color)
         self.canvas.pack(expand=1, fill=BOTH)
 
-        self.img = Image.new("RGB", [self.canvas_width, self.canvas_height], self.background_color)
+        self.img = Image.new("RGB", [self.img_width, self.img_height], self.background_color)
 
         self.canvas.img = ImageTk.PhotoImage(self.img)
         self.canvas.create_image(0, 0, image=self.canvas.img)
@@ -54,13 +56,10 @@ class App(dict):
 
     def configure(self, event):
         self.canvas.delete("all")
-        self.canvas_width = event.width
-        self.canvas_height = event.height
+        self.img_width = event.width
+        self.img_height = event.height
 
-        #mask = Image.new("RGB", (self.canvas_width, self.canvas_height), self.background_color)
-        #self.img = Image.composite(self.img, mask, self.img)
-
-        self.img = self.img.resize((self.canvas_width, self.canvas_height))
+        self.img = self.img.resize((self.img_width, self.img_height))
 
         self.canvas.img = ImageTk.PhotoImage(self.img)
         self.canvas.create_image(0, 0, image=self.canvas.img)
@@ -87,7 +86,7 @@ class App(dict):
 
     def call_new_canvas(self):
         self.canvas.delete("all")
-        self.img = Image.new("RGB", (self.canvas_width, self.canvas_height), self.background_color)
+        self.img = Image.new("RGB", (self.img_width, self.img_height), self.background_color)
 
         self.canvas.img = ImageTk.PhotoImage(self.img)
         self.canvas.create_image(0, 0, image=self.canvas.img)
@@ -103,7 +102,7 @@ class App(dict):
         if file_name is not None:
             self.canvas.delete("all")
 
-            self.img = Image.open(file_name).resize((self.canvas_width, self.canvas_height))
+            self.img = Image.open(file_name).resize((self.img_width, self.img_height))
 
             self.canvas.img = ImageTk.PhotoImage(self.img)
             self.canvas.create_image(0, 0, image=self.canvas.img)
@@ -166,7 +165,7 @@ class App(dict):
         current_point = (event.x, event.y)
 
         self.pencil_img = df.draw_with_pencil(previous_point, current_point, self.active_color, self.img)
-        self.canvas.create_image(self.canvas_width / 2, self.canvas_height / 2, image=self.pencil_img)
+        self.canvas.create_image(self.img_width / 2, self.img_height / 2, image=self.pencil_img)
 
         self.x = event.x
         self.y = event.y
