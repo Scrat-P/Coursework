@@ -33,10 +33,12 @@ class App(dict):
         self.img_height = IMG_INITIAL_HEIGHT
         self.background_color = BACKGROUND_COLOR
 
+        self._init_icon_toolbar()
+        self._init_drawbar()
         self._init_canvas()
         self._init_menubar()
-        self._init_icon_toolbar()
         self._init_color_picker()
+        
 
         self.active_color = RED_COLOR
         self.color_button = self['red_btn']
@@ -123,12 +125,52 @@ class App(dict):
         self._create_button_image('blue_light_img', (20, 20))
         self._create_button_image('pink_img', (20, 20))
 
+        self._create_button_image('move_tool_img', (30, 30))
+        self._create_button_image('rotate_tool_img', (30, 30))
+        self._create_button_image('scale_tool_img', (30, 30))
+        self._create_button_image('flip_vertical_tool_img', (30, 30))
+        self._create_button_image('flip_horizontal_tool_img', (30, 30))
+        self._create_button_image('pencil_img', (30, 30))
+        self._create_button_image('eraser_img', (30, 30))
+        self._create_button_image('line_img', (30, 30))
+        self._create_button_image('curve_img', (30, 30))
+        self._create_button_image('circle_img', (30, 30))
+        self._create_button_image('rectangle_img', (30, 30))
+        self._create_button_image('diamond_img', (30, 30))
+        self._create_button_image('star_img', (30, 30))
+        self._create_button_image('arrow_right_img', (30, 30))
+        self._create_button_image('fill_tool_img', (30, 30))
+
     def _create_button(self, toolbar, img, button_name, button_event):
         self[button_name] = Button(toolbar, image=img, command=button_event)
         self[button_name].pack(side=LEFT, fill=X)
 
+    def _init_drawbar(self):
+        self.drawbar = Frame(self.main_window, borderwidth=0, relief='raised')
+
+        self._create_button(self.drawbar, self['move_tool_img'], 'move_tool_btn', self.draw_pencil_tool)
+        self._create_button(self.drawbar, self['rotate_tool_img'], 'rotate_tool_btn', self.draw_pencil_tool)
+        self._create_button(self.drawbar, self['scale_tool_img'], 'scale_tool_btn', self.draw_pencil_tool)
+        self._create_button(self.drawbar, self['flip_vertical_tool_img'], 'flip_vetical_tool_btn', self.draw_pencil_tool)
+        self._create_button(self.drawbar, self['flip_horizontal_tool_img'], 'flip_horizon_tool_btn', self.draw_pencil_tool)
+        self._create_button(self.drawbar, self['pencil_img'], 'pencil_btn', self.draw_pencil_tool)
+        self._create_button(self.drawbar, self['eraser_img'], 'eraser_btn', self.draw_pencil_tool)
+        self._create_button(self.drawbar, self['line_img'], 'line_btn', self.draw_pencil_tool)
+        self._create_button(self.drawbar, self['curve_img'], 'curve_btn', self.draw_pencil_tool)
+        self._create_button(self.drawbar, self['circle_img'], 'circle_btn', self.draw_pencil_tool)
+        self._create_button(self.drawbar, self['rectangle_img'], 'rectangle_btn', self.draw_pencil_tool)
+        self._create_button(self.drawbar, self['diamond_img'], 'diamond_btn', self.draw_pencil_tool)
+        self._create_button(self.drawbar, self['star_img'], 'star_btn', self.draw_pencil_tool)
+        self._create_button(self.drawbar, self['arrow_right_img'], 'arrow_right_btn', self.draw_pencil_tool)
+        self._create_button(self.drawbar, self['fill_tool_img'], 'fill_tool_btn', self.draw_pencil_tool)
+
+        self.description_btn = Label(self.drawbar, text="", width=40)
+        self.description_btn.pack(side="top", fill="x")
+
+        self.drawbar.pack(side=TOP, fill=X)
+
     def _init_color_picker(self):
-        self.color_toolbar = Frame(self.main_window, borderwidth=2, relief='raised')
+        self.color_toolbar = Frame(self.main_window, borderwidth=0, relief='raised')
 
         self._create_button(self.color_toolbar, self['dark_img'], 'dark_btn', lambda: self.on_change_color(DARK_COLOR, 'dark_btn'))
         self._create_button(self.color_toolbar, self['red_img'], 'red_btn', lambda: self.on_change_color(RED_COLOR, 'red_btn'))
