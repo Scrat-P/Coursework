@@ -11,6 +11,7 @@ IMAGES_FOLDER_PATH = 'images'
 BACKGROUND_COLOR = 'white'
 IMG_INITIAL_WIDTH = 1000
 IMG_INITIAL_HEIGHT = 800
+
 RED_COLOR = (255, 0, 0)
 DARK_COLOR = (0, 0, 0)
 GREEN_COLOR = (0, 255, 0)
@@ -21,6 +22,40 @@ PINK_COLOR = (255, 186, 210)
 BLUE_LIGHT_COLOR = (0, 153, 204)
 BLUE_MALIBU_COLOR = (102, 204, 255)
 PURPLE_COLOR = (102, 0, 204)
+
+COLOR_BUTTONS_WIDTH = 20
+COLOR_BUTTONS_HEIGHT = 20
+COLOR_BUTTONS = (
+    ('dark', DARK_COLOR),
+    ('red', RED_COLOR),
+    ('green', GREEN_COLOR),
+    ('yellow', YELLOW_COLOR),
+    ('orange', ORANGE_COLOR),
+    ('pink', PINK_COLOR),
+    ('blue_light', BLUE_LIGHT_COLOR),
+    ('blue_malibu', BLUE_MALIBU_COLOR),
+    ('purple', PURPLE_COLOR)
+)
+
+TOOL_BUTTONS_WIDTH = 30
+TOOL_BUTTONS_HEIGHT = 30
+TOOL_BUTTONS = (
+    'move_tool',
+    'rotate_tool',
+    'scale_tool',
+    'flip_vertical_tool',
+    'flip_horizontal_tool',
+    'pencil',
+    'eraser',
+    'line',
+    'curve',
+    'circle',
+    'rectangle',
+    'diamond',
+    'star',
+    'arrow_right',
+    'fill_tool'
+)
 
 
 class App(dict):
@@ -39,7 +74,6 @@ class App(dict):
         self._init_menubar()
         self._init_color_picker()
         
-
         self.active_color = RED_COLOR
         self.color_button = self['red_btn']
 
@@ -115,31 +149,11 @@ class App(dict):
         self[img] = ImageTk.PhotoImage(img_obj)
 
     def _init_icon_toolbar(self):
-        self._create_button_image('dark_img', (20, 20))
-        self._create_button_image('red_img', (20, 20))
-        self._create_button_image('green_img', (20, 20))
-        self._create_button_image('yellow_img', (20, 20))
-        self._create_button_image('orange_img', (20, 20))
-        self._create_button_image('purple_img', (20, 20))
-        self._create_button_image('blue_malibu_img', (20, 20))
-        self._create_button_image('blue_light_img', (20, 20))
-        self._create_button_image('pink_img', (20, 20))
+        for color_name, _ in COLOR_BUTTONS:
+            self._create_button_image(f'{color_name}_img', (COLOR_BUTTONS_WIDTH, COLOR_BUTTONS_HEIGHT))
 
-        self._create_button_image('move_tool_img', (30, 30))
-        self._create_button_image('rotate_tool_img', (30, 30))
-        self._create_button_image('scale_tool_img', (30, 30))
-        self._create_button_image('flip_vertical_tool_img', (30, 30))
-        self._create_button_image('flip_horizontal_tool_img', (30, 30))
-        self._create_button_image('pencil_img', (30, 30))
-        self._create_button_image('eraser_img', (30, 30))
-        self._create_button_image('line_img', (30, 30))
-        self._create_button_image('curve_img', (30, 30))
-        self._create_button_image('circle_img', (30, 30))
-        self._create_button_image('rectangle_img', (30, 30))
-        self._create_button_image('diamond_img', (30, 30))
-        self._create_button_image('star_img', (30, 30))
-        self._create_button_image('arrow_right_img', (30, 30))
-        self._create_button_image('fill_tool_img', (30, 30))
+        for tool_name in TOOL_BUTTONS:
+            self._create_button_image(f'{tool_name}_img', (TOOL_BUTTONS_WIDTH, TOOL_BUTTONS_HEIGHT))
 
     def _create_button(self, toolbar, img, button_name, button_event):
         self[button_name] = Button(toolbar, image=img, command=button_event)
@@ -148,21 +162,15 @@ class App(dict):
     def _init_drawbar(self):
         self.drawbar = Frame(self.main_window, borderwidth=0, relief='raised')
 
-        self._create_button(self.drawbar, self['move_tool_img'], 'move_tool_btn', self.draw_pencil_tool)
-        self._create_button(self.drawbar, self['rotate_tool_img'], 'rotate_tool_btn', self.draw_pencil_tool)
-        self._create_button(self.drawbar, self['scale_tool_img'], 'scale_tool_btn', self.draw_pencil_tool)
-        self._create_button(self.drawbar, self['flip_vertical_tool_img'], 'flip_vetical_tool_btn', self.draw_pencil_tool)
-        self._create_button(self.drawbar, self['flip_horizontal_tool_img'], 'flip_horizon_tool_btn', self.draw_pencil_tool)
-        self._create_button(self.drawbar, self['pencil_img'], 'pencil_btn', self.draw_pencil_tool)
-        self._create_button(self.drawbar, self['eraser_img'], 'eraser_btn', self.draw_pencil_tool)
-        self._create_button(self.drawbar, self['line_img'], 'line_btn', self.draw_pencil_tool)
-        self._create_button(self.drawbar, self['curve_img'], 'curve_btn', self.draw_pencil_tool)
-        self._create_button(self.drawbar, self['circle_img'], 'circle_btn', self.draw_pencil_tool)
-        self._create_button(self.drawbar, self['rectangle_img'], 'rectangle_btn', self.draw_pencil_tool)
-        self._create_button(self.drawbar, self['diamond_img'], 'diamond_btn', self.draw_pencil_tool)
-        self._create_button(self.drawbar, self['star_img'], 'star_btn', self.draw_pencil_tool)
-        self._create_button(self.drawbar, self['arrow_right_img'], 'arrow_right_btn', self.draw_pencil_tool)
-        self._create_button(self.drawbar, self['fill_tool_img'], 'fill_tool_btn', self.draw_pencil_tool)
+        for tool_name in TOOL_BUTTONS:
+            if tool_name.endswith('tool'):
+                tool_event = f'draw_{tool_name}'
+            else:
+                tool_event = f'draw_{tool_name}_tool'
+
+            print(getattr(self, tool_event))
+
+            self._create_button(self.drawbar, self[f'{tool_name}_img'], f'{tool_name}_btn', self.draw_pencil_tool)
 
         self.description_btn = Label(self.drawbar, text="", width=40)
         self.description_btn.pack(side="top", fill="x")
@@ -172,19 +180,12 @@ class App(dict):
     def _init_color_picker(self):
         self.color_toolbar = Frame(self.main_window, borderwidth=0, relief='raised')
 
-        self._create_button(self.color_toolbar, self['dark_img'], 'dark_btn', lambda: self.on_change_color(DARK_COLOR, 'dark_btn'))
-        self._create_button(self.color_toolbar, self['red_img'], 'red_btn', lambda: self.on_change_color(RED_COLOR, 'red_btn'))
-        self._create_button(self.color_toolbar, self['green_img'], 'green_btn', lambda: self.on_change_color(GREEN_COLOR, 'green_btn'))
-        self._create_button(self.color_toolbar, self['yellow_img'], 'yellow_btn', lambda: self.on_change_color(YELLOW_COLOR, 'yellow_btn'))
-        self._create_button(self.color_toolbar, self['orange_img'], 'orange_btn', lambda: self.on_change_color(ORANGE_COLOR, 'orange_btn'))
-        self._create_button(self.color_toolbar, self['pink_img'], 'pink_btn', lambda: self.on_change_color(PINK_COLOR, 'pink_btn'))
-        self._create_button(self.color_toolbar, self['blue_light_img'], 'blue_light_btn', lambda: self.on_change_color(BLUE_LIGHT_COLOR, 'blue_light_btn'))
-        self._create_button(self.color_toolbar, self['blue_malibu_img'], 'blue_malibu_btn', lambda: self.on_change_color(BLUE_MALIBU_COLOR, 'blue_malibu_btn'))
-        self._create_button(self.color_toolbar, self['purple_img'], 'purple_btn', lambda: self.on_change_color(PURPLE_COLOR, 'purple_btn'))
+        for color_name, color_rgb in COLOR_BUTTONS:
+            self._create_button(self.color_toolbar, self[f'{color_name}_img'], f'{color_name}_btn', lambda: self.on_change_color(color_rgb, f'{color_name}_btn'))
 
         self.color_toolbar.pack(side=BOTTOM, fill=X)
 
-    def on_change_color(self, color, color_button_name):   
+    def on_change_color(self, color, color_button_name):
         self.color_button.config(relief=RAISED)
         
         self.color_button = self[color_button_name]
@@ -197,6 +198,51 @@ class App(dict):
         self.canvas.bind("<ButtonPress-1>", self.on_button_press)
         self.canvas.bind("<B1-Motion>", self.on_button_draw_pencil)
         self.canvas.bind("<ButtonRelease-1>", self.on_button_draw_pencil)
+
+    def draw_move_tool(self):
+        pass
+
+    def draw_rotate_tool(self):
+        pass
+
+    def draw_scale_tool(self):
+        pass
+
+    def draw_flip_vertical_tool(self):
+        pass
+
+    def draw_flip_horizontal_tool(self):
+        pass
+
+    def draw_pencil_tool(self):
+        pass
+
+    def draw_eraser_tool(self):
+        pass
+
+    def draw_line_tool(self):
+        pass
+
+    def draw_curve_tool(self):
+        pass
+
+    def draw_circle_tool(self):
+        pass
+
+    def draw_rectangle_tool(self):
+        pass
+
+    def draw_diamond_tool(self):
+        pass
+
+    def draw_star_tool(self):
+        pass
+
+    def draw_arrow_right_tool(self):
+        pass
+
+    def draw_fill_tool(self):
+        pass
 
     def on_button_press(self, event):
         self.x = event.x
@@ -215,7 +261,7 @@ class App(dict):
 
 if __name__ == "__main__":
     main_window = Tk()
-    main_window.geometry("1000x800")
+    main_window.geometry(f'{IMG_INITIAL_WIDTH}x{IMG_INITIAL_HEIGHT}')
     main_window.style = ttk.Style()
     main_window.style.theme_use('clam')
 
