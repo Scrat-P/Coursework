@@ -86,7 +86,7 @@ class App(dict):
         self.img = Image.new("RGB", [self.img_width, self.img_height], self.background_color)
 
         self.canvas.img = ImageTk.PhotoImage(self.img)
-        self.canvas.create_image(0, 0, image=self.canvas.img)
+        self.canvas.create_image(0, 0, anchor=NW, image=self.canvas.img)
 
         self.canvas.bind("<Configure>", self.configure)
 
@@ -98,7 +98,7 @@ class App(dict):
         self.img = self.img.resize((self.img_width, self.img_height))
 
         self.canvas.img = ImageTk.PhotoImage(self.img)
-        self.canvas.create_image(0, 0, image=self.canvas.img)
+        self.canvas.create_image(0, 0, anchor=NW, image=self.canvas.img)
 
     def _init_menubar(self):
         menubar = Menu(self.main_window)
@@ -125,7 +125,7 @@ class App(dict):
         self.img = Image.new("RGB", (self.img_width, self.img_height), self.background_color)
 
         self.canvas.img = ImageTk.PhotoImage(self.img)
-        self.canvas.create_image(0, 0, image=self.canvas.img)
+        self.canvas.create_image(0, 0, anchor=NW, image=self.canvas.img)
 
     def call_open_image(self):
         file_name = filedialog.askopenfilename(
@@ -141,7 +141,7 @@ class App(dict):
             self.img = Image.open(file_name).resize((self.img_width, self.img_height))
 
             self.canvas.img = ImageTk.PhotoImage(self.img)
-            self.canvas.create_image(0, 0, image=self.canvas.img)
+            self.canvas.create_image(0, 0, anchor=NW, image=self.canvas.img)
 
     def _create_button_image(self, img, size):
         image_path = os.path.join(IMAGES_FOLDER_PATH, f"{img}.png")
@@ -156,6 +156,7 @@ class App(dict):
             self._create_button_image(f'{tool_name}_img', (TOOL_BUTTONS_WIDTH, TOOL_BUTTONS_HEIGHT))
 
     def _create_button(self, toolbar, img, button_name, button_event):
+        print(button_name, button_event.__name__)
         self[button_name] = Button(toolbar, image=img, command=button_event)
         self[button_name].pack(side=LEFT, fill=X)
 
@@ -168,7 +169,7 @@ class App(dict):
             else:
                 tool_event = f'draw_{tool_name}_tool'
 
-            print(getattr(self, tool_event))
+            # print(getattr(self, tool_event))
 
             self._create_button(self.drawbar, self[f'{tool_name}_img'], f'{tool_name}_btn', self.draw_pencil_tool)
 
@@ -193,7 +194,14 @@ class App(dict):
         
         self.active_color = color
 
+    def _activate_button(self, button_name):
+        self.active_button.config(relief=RAISED)
+        self.active_button = self[button_name]
+        self.active_button.config(relief=SUNKEN)
+
     def draw_pencil_tool(self):
+        self._activate_button('pencil_btn')
+
         self.canvas.config(cursor="pencil")
         self.canvas.bind("<ButtonPress-1>", self.on_button_press)
         self.canvas.bind("<B1-Motion>", self.on_button_draw_pencil)
