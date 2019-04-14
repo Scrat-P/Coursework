@@ -75,8 +75,9 @@ class App(dict):
         self._init_color_picker()
         
         self.active_color = RED_COLOR
-        self.color_button = self['red_btn']
+        self.active_color_button = self['red_btn']
 
+        self.active_tool_button = self['pencil_btn']
         self.draw_pencil_tool()
 
     def _init_canvas(self):
@@ -156,7 +157,6 @@ class App(dict):
             self._create_button_image(f'{tool_name}_img', (TOOL_BUTTONS_WIDTH, TOOL_BUTTONS_HEIGHT))
 
     def _create_button(self, toolbar, img, button_name, button_event):
-        print(button_name, button_event.__name__)
         self[button_name] = Button(toolbar, image=img, command=button_event)
         self[button_name].pack(side=LEFT, fill=X)
 
@@ -168,8 +168,6 @@ class App(dict):
                 tool_event = f'draw_{tool_name}'
             else:
                 tool_event = f'draw_{tool_name}_tool'
-
-            # print(getattr(self, tool_event))
 
             self._create_button(self.drawbar, self[f'{tool_name}_img'], f'{tool_name}_btn', self.draw_pencil_tool)
 
@@ -187,20 +185,17 @@ class App(dict):
         self.color_toolbar.pack(side=BOTTOM, fill=X)
 
     def on_change_color(self, color, color_button_name):
-        self.color_button.config(relief=RAISED)
-        
-        self.color_button = self[color_button_name]
-        self.color_button.config(relief=SUNKEN)
+        self._activate_button(self.active_color_button, color_button_name)
         
         self.active_color = color
 
-    def _activate_button(self, button_name):
-        self.active_button.config(relief=RAISED)
-        self.active_button = self[button_name]
-        self.active_button.config(relief=SUNKEN)
+    def _activate_button(self, button, new_button_name):
+        button.config(relief=RAISED)
+        button = self[new_button_name]
+        button.config(relief=SUNKEN)
 
     def draw_pencil_tool(self):
-        self._activate_button('pencil_btn')
+        self._activate_button(self.active_tool_button, 'pencil_btn')
 
         self.canvas.config(cursor="pencil")
         self.canvas.bind("<ButtonPress-1>", self.on_button_press)
@@ -220,9 +215,6 @@ class App(dict):
         pass
 
     def draw_flip_horizontal_tool(self):
-        pass
-
-    def draw_pencil_tool(self):
         pass
 
     def draw_eraser_tool(self):
