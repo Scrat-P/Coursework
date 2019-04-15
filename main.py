@@ -1,4 +1,5 @@
 import os
+import copy
 from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog
@@ -49,7 +50,7 @@ TOOL_BUTTONS = (
     'eraser',
     'line',
     'curve',
-    'circle',
+    'ellipse',
     'rectangle',
     'diamond',
     'star',
@@ -78,7 +79,9 @@ class App(dict):
         self.active_color_button = self['red_btn']
 
         self.active_tool_button = self['pencil_btn']
-        self.draw_pencil_tool()
+        self.default_state = 0
+
+        self.draw_ellipse_tool()
 
     def _init_canvas(self):
         self.canvas = Canvas(self.main_window, bg=self.background_color)
@@ -186,7 +189,7 @@ class App(dict):
 
     def on_change_color(self, color, color_button_name):
         self._activate_button(self.active_color_button, color_button_name)
-        
+
         self.active_color = color
 
     def _activate_button(self, button, new_button_name):
@@ -226,8 +229,22 @@ class App(dict):
     def draw_curve_tool(self):
         pass
 
-    def draw_circle_tool(self):
-        pass
+    def on_key_press(self):
+        self.default_state = 1
+
+    def on_key_release(self):
+        self.default_state = 0
+
+    def draw_ellipse_tool(self):
+        self._activate_button(self.active_tool_button, 'ellipse_btn')
+
+        self.canvas.config(cursor="circle")
+        self.canvas.bind("<ButtonPress-1>", self.on_button_press)
+        self.canvas.bind("<B1-Motion>", self.on_button_ellipse_motion)
+        self.canvas.bind("<ButtonRelease-1>", self.on_button_release_ellipse) 
+
+        self.main_window.bind("<KeyPress-Shift_L>", lambda event: self.on_key_press())
+        self.main_window.bind("<KeyRelease-Shift_L>", lambda event: self.on_key_release())
 
     def draw_rectangle_tool(self):
         pass
@@ -247,6 +264,25 @@ class App(dict):
     def on_button_press(self, event):
         self.x = event.x
         self.y = event.y
+
+    def _on_button_ellipse(self, event, current_canvas_img):
+        top_left_point = (min(self.x, event.x), min(self.y, event.y))
+        bottom_right_point = (max(self.x, event.x), max(self.y, event.y))
+
+        if self.default_state == 1:
+            diameter = max(bottom_right_point[0] - top_left_point[0], bottom_right_point[1] - top_left_point[1])
+            bottom_right_point = (top_left_point[0] + diameter, top_left_point[1] + diameter)
+
+        self.ellipse_img = df.draw_with_ellipse_tool(top_left_point, bottom_right_point, self.active_color, current_canvas_img)
+        self.canvas.create_image(self.img_width / 2, self.img_height / 2, image=self.ellipse_img)        
+
+    def on_button_ellipse_motion(self, event):
+        current_canvas_img = copy.copy(self.img)
+        self._on_button_ellipse(event, current_canvas_img)
+
+    def on_button_release_ellipse(self, event):
+        self._on_button_ellipse(event, self.img)
+        self.default_state = 0
 
     def on_button_draw_pencil(self, event):
         previous_point = (self.x, self.y)
