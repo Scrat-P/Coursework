@@ -172,7 +172,7 @@ class App(dict):
             else:
                 tool_event = f'draw_{tool_name}_tool'
 
-            self._create_button(self.drawbar, self[f'{tool_name}_img'], f'{tool_name}_btn', self.draw_pencil_tool)
+            self._create_button(self.drawbar, self[f'{tool_name}_img'], f'{tool_name}_btn', getattr(self, tool_event))
 
         self.description_btn = Label(self.drawbar, text="", width=40)
         self.description_btn.pack(side="top", fill="x")
@@ -188,17 +188,23 @@ class App(dict):
         self.color_toolbar.pack(side=BOTTOM, fill=X)
 
     def on_change_color(self, color, color_button_name):
-        self._activate_button(self.active_color_button, color_button_name)
+        self._activate_button('active_color_button', color_button_name)
 
         self.active_color = color
 
-    def _activate_button(self, button, new_button_name):
-        button.config(relief=RAISED)
-        button = self[new_button_name]
-        button.config(relief=SUNKEN)
+    def _activate_button(self, button_attr, new_button_name):
+        getattr(self, button_attr).config(relief=RAISED)
+
+        setattr(self, button_attr, self[new_button_name])
+        getattr(self, button_attr).config(relief=SUNKEN)
+
+    def _unbind_buttons(self):
+        self.canvas.unbind("<ButtonPress-1>")
+        self.canvas.unbind("<B1-Motion>")
+        self.canvas.unbind("<ButtonRelease-1>")
 
     def draw_pencil_tool(self):
-        self._activate_button(self.active_tool_button, 'pencil_btn')
+        self._activate_button('active_tool_button', 'pencil_btn')
 
         self.canvas.config(cursor="pencil")
         self.canvas.bind("<ButtonPress-1>", self.on_button_press)
@@ -237,10 +243,9 @@ class App(dict):
     def on_button_line_motion(self, event):
         current_canvas_img = copy.copy(self.img)
         self._on_button_line(event, current_canvas_img)
-        self.default_tate = 0
 
     def draw_line_tool(self):
-        self._activate_button(self.active_tool_button, 'line_btn')
+        self._activate_button('active_tool_button', 'line_btn')
 
         self.canvas.config(cursor="crosshair")
         self.canvas.bind("<ButtonPress-1>", self.on_button_press)
@@ -260,7 +265,7 @@ class App(dict):
         self.default_state = 0
 
     def draw_ellipse_tool(self):
-        self._activate_button(self.active_tool_button, 'ellipse_btn')
+        self._activate_button('active_tool_button', 'ellipse_btn')
 
         self.canvas.config(cursor="circle")
         self.canvas.bind("<ButtonPress-1>", self.on_button_press)
@@ -282,8 +287,20 @@ class App(dict):
     def draw_arrow_right_tool(self):
         pass
 
+    def on_button_fill(self, event):
+        self.busy()
+
+        self.filled_img = df.fill_color((event.x, event.y), self.active_color, self.img)
+        self.canvas.create_image(self.img_width / 2, self.img_height / 2, image=self.filled_img)
+
+        self.notbusy("spraycan")
+
     def draw_fill_tool(self):
-        pass
+        self._unbind_buttons()
+        self._activate_button('active_tool_button', 'fill_tool_btn')
+
+        self.canvas.config(cursor="spraycan")
+        self.canvas.bind("<Button-1>", self.on_button_fill)
 
     def on_button_press(self, event):
         self.x = event.x
@@ -313,6 +330,13 @@ class App(dict):
 
         self.x = event.x
         self.y = event.y
+
+    def busy(self):
+        self.canvas.config(cursor="watch")
+        self.main_window.update()
+
+    def notbusy(self, cursor = ""):
+        self.canvas.config(cursor=cursor)
 
 
 if __name__ == "__main__":

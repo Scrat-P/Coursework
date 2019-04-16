@@ -30,3 +30,9 @@ def draw_with_line_tool(start_point, end_point, color, img, default_state):
     draw.line(start_point + end_point, color)
 
     return ImageTk.PhotoImage(img)
+
+
+def fill_color(point, color, img):
+    draw = ImageDraw.floodfill(img, point, color)
+
+    return ImageTk.PhotoImage(img)
