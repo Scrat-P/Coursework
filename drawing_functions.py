@@ -48,6 +48,35 @@ def draw_with_rhomb_tool(top_left_point, bottom_right_point, color, img, default
     return ImageTk.PhotoImage(img)
 
 
+def draw_with_star_tool(top_left_point, bottom_right_point, color, img, default_state):
+    if default_state == 1:
+        width = max(bottom_right_point[0] - top_left_point[0], bottom_right_point[1] - top_left_point[1])
+        bottom_right_point = (top_left_point[0] + width, top_left_point[1] + width)
+
+    a = (bottom_right_point[1] - top_left_point[1])/2.
+    b = (bottom_right_point[0] - top_left_point[0])/2.    
+
+    star_angles = [
+        (int(top_left_point[0] + b), int(top_left_point[1])),
+        (int(top_left_point[0] + 3*b/4), int(top_left_point[1] + a/2)),
+        (int(top_left_point[0]), int(top_left_point[1]) + a/2),
+        (int(top_left_point[0] + b/2), int(top_left_point[1] + a)),
+        (int(top_left_point[0]), int(top_left_point[1] + 1.5*a)),
+        (int(top_left_point[0] + 3*b/4), int(top_left_point[1] + 1.5*a)),
+        (int(top_left_point[0] + b), int(top_left_point[1] + 2*a)),
+        (int(top_left_point[0] + 1.25*b), int(top_left_point[1] + 1.5*a)),
+        (int(top_left_point[0] + 2*b), int(top_left_point[1] + 1.5*a)),
+        (int(top_left_point[0] + 1.5*b), int(top_left_point[1] + a)),
+        (int(top_left_point[0] + 2*b), int(top_left_point[1] + a/2)),
+        (int(top_left_point[0] + 1.25*b), int(top_left_point[1] + a/2))
+    ]
+    
+    draw = ImageDraw.Draw(img)
+    draw.polygon(star_angles, outline=color)
+
+    return ImageTk.PhotoImage(img)
+
+
 def erase_rectangle(current_point, color, img):
     draw = ImageDraw.Draw(img)    
 
