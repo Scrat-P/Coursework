@@ -70,9 +70,33 @@ def draw_with_star_tool(top_left_point, bottom_right_point, color, img, default_
         (int(top_left_point[0] + 2*b), int(top_left_point[1] + a/2)),
         (int(top_left_point[0] + 1.25*b), int(top_left_point[1] + a/2))
     ]
-    
+
     draw = ImageDraw.Draw(img)
     draw.polygon(star_angles, outline=color)
+
+    return ImageTk.PhotoImage(img)
+
+
+def draw_with_arrow_right_tool(top_left_point, bottom_right_point, color, img, default_state):
+    if default_state == 1:
+        width = max(bottom_right_point[0] - top_left_point[0], bottom_right_point[1] - top_left_point[1])
+        bottom_right_point = (top_left_point[0] + width, top_left_point[1] + width)
+
+    a = (bottom_right_point[1] - top_left_point[1])/2.
+    b = (bottom_right_point[0] - top_left_point[0])/2.    
+
+    arrow_right_angles = [
+        (int(top_left_point[0]), int(a/2 + top_left_point[1])),
+        (int(top_left_point[0] + 4*b/3), int(a/2 + top_left_point[1])),
+        (int(top_left_point[0] + 4*b/3), int(top_left_point[1])),
+        (int(top_left_point[0] + 2*b), int(a + top_left_point[1])),
+        (int(top_left_point[0] + 4*b/3), int(2*a + top_left_point[1])),
+        (int(top_left_point[0] + 4*b/3), int(3*a/2 + top_left_point[1])),
+        (int(top_left_point[0]), int(3*a/2 + top_left_point[1]))
+    ]
+
+    draw = ImageDraw.Draw(img)
+    draw.polygon(arrow_right_angles, outline=color)
 
     return ImageTk.PhotoImage(img)
 
