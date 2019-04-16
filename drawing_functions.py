@@ -18,6 +18,7 @@ def draw_with_ellipse_tool(top_left_point, bottom_right_point, color, img, defau
 
     return ImageTk.PhotoImage(img)
 
+
 def draw_with_rectangle_tool(top_left_point, bottom_right_point, color, img, default_state):
     if default_state == 1:
         width = max(bottom_right_point[0] - top_left_point[0], bottom_right_point[1] - top_left_point[1])
@@ -28,6 +29,25 @@ def draw_with_rectangle_tool(top_left_point, bottom_right_point, color, img, def
 
     return ImageTk.PhotoImage(img)
 
+
+def draw_with_rhomb_tool(top_left_point, bottom_right_point, color, img, default_state):
+    if default_state == 1:
+        width = max(bottom_right_point[0] - top_left_point[0], bottom_right_point[1] - top_left_point[1])
+        bottom_right_point = (top_left_point[0] + width, top_left_point[1] + width)
+
+    rhomb_angles = [
+        (int((bottom_right_point[0] + top_left_point[0])/2), top_left_point[1]),
+        (bottom_right_point[0], int((bottom_right_point[1] + top_left_point[1])/2)),
+        (int((bottom_right_point[0] + top_left_point[0])/2), bottom_right_point[1]),
+        (top_left_point[0], int((bottom_right_point[1] + top_left_point[1])/2))
+    ]
+
+    draw = ImageDraw.Draw(img)
+    draw.polygon(rhomb_angles, outline=color)
+
+    return ImageTk.PhotoImage(img)
+
+
 def erase_rectangle(current_point, color, img):
     draw = ImageDraw.Draw(img)    
 
@@ -37,6 +57,7 @@ def erase_rectangle(current_point, color, img):
     draw.rectangle((top_left_point, bottom_right_point), fill=color)
 
     return ImageTk.PhotoImage(img)
+
 
 def draw_with_line_tool(start_point, end_point, color, img, default_state):
     if default_state == 1:
