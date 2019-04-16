@@ -227,7 +227,31 @@ class App(dict):
         pass
 
     def draw_eraser_tool(self):
-        pass
+        self._activate_button('active_tool_button', 'rectangle_btn')
+
+        self.canvas.config(cursor="dotbox")
+        self.canvas.bind("<ButtonPress-1>", self.on_button_press)
+        self.canvas.bind("<B1-Motion>", self.on_button_eraser)
+        self.canvas.bind("<ButtonRelease-1>", self.on_button_eraser) 
+
+    def on_button_draw_pencil(self, event):
+        previous_point = (self.x, self.y)
+        current_point = (event.x, event.y)
+
+        self.pencil_img = df.draw_with_pencil_tool(previous_point, current_point, self.active_color, self.img)
+        self.canvas.create_image(self.img_width / 2, self.img_height / 2, image=self.pencil_img)
+
+        self.x = event.x
+        self.y = event.y
+
+    def on_button_eraser(self, event):
+        current_point = (event.x, event.y)
+
+        self.eraser_img = df.erase_rectangle(current_point, self.background_color, self.img)
+        self.canvas.create_image(self.img_width / 2, self.img_height / 2, image=self.eraser_img)
+
+        self.x = event.x
+        self.y = event.y
 
     def _on_button_line(self, event, current_canvas_img):
         start_point = [self.x, self.y]

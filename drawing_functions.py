@@ -28,7 +28,15 @@ def draw_with_rectangle_tool(top_left_point, bottom_right_point, color, img, def
 
     return ImageTk.PhotoImage(img)
 
+def erase_rectangle(current_point, color, img):
+    draw = ImageDraw.Draw(img)    
 
+    bottom_right_point = (current_point[0] + 5, current_point[1] + 5)
+    top_left_point = (current_point[0] - 5, current_point[1] - 5)
+    
+    draw.rectangle((top_left_point, bottom_right_point), fill=color)
+
+    return ImageTk.PhotoImage(img)
 
 def draw_with_line_tool(start_point, end_point, color, img, default_state):
     if default_state == 1:
