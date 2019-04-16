@@ -276,7 +276,30 @@ class App(dict):
         self.main_window.bind("<KeyRelease-Shift_L>", lambda event: self.on_key_release())
 
     def draw_rectangle_tool(self):
-        pass
+        self._activate_button('active_tool_button', 'rectangle_btn')
+
+        self.canvas.config(cursor="plus")
+        self.canvas.bind("<ButtonPress-1>", self.on_button_press)
+        self.canvas.bind("<B1-Motion>", self.on_button_rectangle_motion)
+        self.canvas.bind("<ButtonRelease-1>", self.on_button_release_rectangle) 
+
+        self.main_window.bind("<KeyPress-Shift_L>", lambda event: self.on_key_press())
+        self.main_window.bind("<KeyRelease-Shift_L>", lambda event: self.on_key_release())
+
+    def _on_button_rectangle(self, event, current_canvas_img):
+        top_left_point = (min(self.x, event.x), min(self.y, event.y))
+        bottom_right_point = (max(self.x, event.x), max(self.y, event.y))
+
+        self.rectangle_img = df.draw_with_rectangle_tool(top_left_point, bottom_right_point, self.active_color, current_canvas_img, self.default_state)
+        self.canvas.create_image(self.img_width / 2, self.img_height / 2, image=self.rectangle_img)        
+
+    def on_button_rectangle_motion(self, event):
+        current_canvas_img = copy.copy(self.img)
+        self._on_button_rectangle(event, current_canvas_img)
+
+    def on_button_release_rectangle(self, event):
+        self._on_button_rectangle(event, self.img)
+        self.default_state = 0
 
     def draw_diamond_tool(self):
         pass

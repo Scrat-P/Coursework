@@ -18,6 +18,17 @@ def draw_with_ellipse_tool(top_left_point, bottom_right_point, color, img, defau
 
     return ImageTk.PhotoImage(img)
 
+def draw_with_rectangle_tool(top_left_point, bottom_right_point, color, img, default_state):
+    if default_state == 1:
+        width = max(bottom_right_point[0] - top_left_point[0], bottom_right_point[1] - top_left_point[1])
+        bottom_right_point = (top_left_point[0] + width, top_left_point[1] + width)
+
+    draw = ImageDraw.Draw(img)  
+    draw.rectangle((top_left_point, bottom_right_point), outline=color)
+
+    return ImageTk.PhotoImage(img)
+
+
 
 def draw_with_line_tool(start_point, end_point, color, img, default_state):
     if default_state == 1:
