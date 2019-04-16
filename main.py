@@ -183,7 +183,7 @@ class App(dict):
         self.color_toolbar = Frame(self.main_window, borderwidth=0, relief='raised')
 
         for color_name, color_rgb in COLOR_BUTTONS:
-            self._create_button(self.color_toolbar, self[f'{color_name}_img'], f'{color_name}_btn', lambda: self.on_change_color(color_rgb, f'{color_name}_btn'))
+            self._create_button(self.color_toolbar, self[f'{color_name}_img'], f'{color_name}_btn', (lambda x=color_rgb, y=f'{color_name}_btn': self.on_change_color(x, y)))
 
         self.color_toolbar.pack(side=BOTTOM, fill=X)
 
@@ -233,16 +233,6 @@ class App(dict):
         self.canvas.bind("<ButtonPress-1>", self.on_button_press)
         self.canvas.bind("<B1-Motion>", self.on_button_eraser)
         self.canvas.bind("<ButtonRelease-1>", self.on_button_eraser) 
-
-    def on_button_draw_pencil(self, event):
-        previous_point = (self.x, self.y)
-        current_point = (event.x, event.y)
-
-        self.pencil_img = df.draw_with_pencil_tool(previous_point, current_point, self.active_color, self.img)
-        self.canvas.create_image(self.img_width / 2, self.img_height / 2, image=self.pencil_img)
-
-        self.x = event.x
-        self.y = event.y
 
     def on_button_eraser(self, event):
         current_point = (event.x, event.y)
