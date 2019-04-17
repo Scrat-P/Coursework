@@ -1,4 +1,5 @@
 from PIL import Image, ImageTk, ImageDraw
+from main import DARK_COLOR, WHITE_COLOR
 
 
 def draw_with_pencil_tool(previous_point, current_point, color, img):
@@ -129,3 +130,26 @@ def fill_color(point, color, img):
     draw = ImageDraw.floodfill(img, point, color)
 
     return ImageTk.PhotoImage(img)
+
+
+def scalling(selected_area, cursor_position, background_color, img):
+    selected_img = img.crop(selected_area)
+
+    top_left_point = (selected_area[0], selected_area[1])
+    bottom_right_point = (selected_area[2], selected_area[3])
+    img = erase_selected_area(top_left_point, bottom_right_point, background_color, img)
+
+    scaled_img_width = abs(cursor_position[0] - selected_area[0])
+    scaled_img_heigth = abs(cursor_position[1] - selected_area[1])
+    scaled_img = selected_img.resize((scaled_img_width, scaled_img_heigth))
+
+    img.paste(scaled_img, (selected_area[0], selected_area[1]))
+
+    return ImageTk.PhotoImage(img)
+
+
+def erase_selected_area(top_left_point, bottom_right_point, background_color, img):
+    draw = ImageDraw.Draw(img)  
+    draw.rectangle((top_left_point, bottom_right_point), fill=WHITE_COLOR)
+
+    return img

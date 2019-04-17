@@ -68,6 +68,7 @@ class App(dict):
         self.img_width = IMG_INITIAL_WIDTH
         self.img_height = IMG_INITIAL_HEIGHT
         self.background_color = BACKGROUND_COLOR
+        self.pixel_list = None
 
         self._init_icon_toolbar()
         self._init_drawbar()
@@ -217,8 +218,50 @@ class App(dict):
     def draw_rotate_tool(self):
         pass
 
+    def on_button_selected_area_motion(self, event):
+        top_left_point = (min(self.x, event.x), min(self.y, event.y))
+        bottom_right_point = (max(self.x, event.x), max(self.y, event.y))   
+
+        current_canvas_img = copy.copy(self.img)
+        self.rectangle_img = df.draw_with_rectangle_tool(top_left_point, bottom_right_point, DARK_COLOR, current_canvas_img, self.default_state)
+        self.canvas.create_image(self.img_width / 2, self.img_height / 2, image=self.rectangle_img) 
+
     def draw_scale_tool(self):
-        pass
+        self._activate_button('active_tool_button', 'scale_tool_btn')
+
+        self.canvas.config(cursor="crosshair")
+        self.canvas.bind("<ButtonPress-1>", self.on_button_press)
+        self.canvas.bind("<B1-Motion>", self.on_button_selected_area_motion)
+        self.canvas.bind("<ButtonRelease-1>", self.on_button_release_scale_selected_area)    
+
+        self.main_window.bind("<KeyPress-Shift_L>", lambda event: self.on_key_press())
+        self.main_window.bind("<KeyRelease-Shift_L>", lambda event: self.on_key_release())
+
+    def on_button_release_scale_selected_area(self, event):
+        self.selected_area = (
+            min(self.x, event.x), min(self.y, event.y),
+            max(self.x, event.x), max(self.y, event.y)
+        )
+        self.default_state = 0
+
+        self.canvas.config(cursor="crosshair")
+        self.canvas.bind("<B1-Motion>", self.on_button_scale_motion)
+        self.canvas.bind("<ButtonRelease-1>", self.on_button_release_scale)
+
+    def _on_button_scale(self, event, current_canvas_img):
+        cursor_position = (event.x, event.y)
+        self.scale_img = df.scalling(self.selected_area, cursor_position, self.background_color, current_canvas_img)
+        self.canvas.create_image(self.img_width / 2, self.img_height / 2, image=self.scale_img)
+
+    def on_button_release_scale(self, event):
+        self._on_button_scale(event, self.img)
+
+        self.default_state = 0
+        self.draw_scale_tool()
+
+    def on_button_scale_motion(self, event):
+        current_canvas_img = copy.copy(self.img)
+        self._on_button_scale(event, current_canvas_img)
 
     def draw_flip_vertical_tool(self):
         pass
@@ -227,7 +270,7 @@ class App(dict):
         pass
 
     def draw_eraser_tool(self):
-        self._activate_button('active_tool_button', 'rectangle_btn')
+        self._activate_button('active_tool_button', 'eraser_btn')
 
         self.canvas.config(cursor="dotbox")
         self.canvas.bind("<ButtonPress-1>", self.on_button_press)
