@@ -1,3 +1,4 @@
+import math
 from PIL import Image, ImageTk, ImageDraw
 from main import DARK_COLOR, WHITE_COLOR
 
@@ -132,7 +133,7 @@ def fill_color(point, color, img):
     return ImageTk.PhotoImage(img)
 
 
-def scalling(selected_area, cursor_position, background_color, img):
+def draw_scaling(selected_area, cursor_position, background_color, img):
     selected_img = img.crop(selected_area)
 
     top_left_point = (selected_area[0], selected_area[1])
@@ -149,7 +150,47 @@ def scalling(selected_area, cursor_position, background_color, img):
 
 
 def erase_selected_area(top_left_point, bottom_right_point, background_color, img):
-    draw = ImageDraw.Draw(img)  
+    draw = ImageDraw.Draw(img)
     draw.rectangle((top_left_point, bottom_right_point), fill=WHITE_COLOR)
 
     return img
+
+
+def get_pixel_list(selected_area, selected_img):
+    pixel_list = []
+    selected_area_width = selected_area[2] - selected_area[0]
+    for i in range(selected_area[1], selected_area[3]):
+        for j in range(selected_area[0], selected_area[2]):
+            color = selected_img[(i - selected_area[1]) * selected_area_width + (j - selected_area[0])]
+            pixel_list.append(((j, i), color))
+
+    return pixel_list
+
+
+def draw_rotating(selected_area, cursor_position, background_color, img):
+    selected_img = img.crop(selected_area).getdata()
+
+    pixel_list = get_pixel_list(selected_area, selected_img)
+
+    top_left_point = (selected_area[0], selected_area[1])
+    bottom_right_point = (selected_area[2] - 1, selected_area[3] - 1)
+    img = erase_selected_area(top_left_point, bottom_right_point, background_color, img)
+
+    top_x, top_y = bottom_right_point
+    bottom_x, bottom_y = cursor_position
+
+    if bottom_x > top_x:
+        alpha = math.atan((top_y-bottom_y) / float(top_x-bottom_x))    
+    else:
+        alpha = math.pi + math.atan((top_y-bottom_y) / float(top_x-bottom_x+1e-9))   
+
+    center_x, center_y = top_left_point[0], bottom_right_point[1]
+    for i in range(0, len(pixel_list) - 1):
+        pixel = pixel_list[i]
+
+        x = center_x + int(math.cos(alpha)*(pixel[0][0] - center_x) - math.sin(alpha)*(pixel[0][1] - center_y))
+        y = center_y + int(math.sin(alpha)*(pixel[0][0] - center_x) + math.cos(alpha)*(pixel[0][1] - center_y))
+
+        img.putpixel((x, y), pixel[1])
+
+    return ImageTk.PhotoImage(img)

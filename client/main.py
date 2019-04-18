@@ -223,8 +223,72 @@ class App(dict):
     def draw_move_tool(self):
         pass
 
+
+
+
+
+
+
+
+
+
+
+
+
+
     def draw_rotate_tool(self):
-        pass
+        self._activate_button('active_tool_button', 'rotate_tool_btn')
+
+        self.canvas.config(cursor="crosshair")
+        self.canvas.bind("<ButtonPress-1>", self.on_button_press)
+        self.canvas.bind("<B1-Motion>", self.on_button_selected_area_motion)
+        self.canvas.bind("<ButtonRelease-1>", self.on_button_release_rotate_selected_area)    
+
+        self.main_window.bind("<KeyPress-Shift_L>", lambda event: self.on_key_press())
+        self.main_window.bind("<KeyRelease-Shift_L>", lambda event: self.on_key_release())
+
+    def on_button_release_rotate_selected_area(self, event):
+        self.selected_area = (
+            min(self.x, event.x), min(self.y, event.y),
+            max(self.x, event.x), max(self.y, event.y)
+        )
+        self.default_state = 0
+
+        self.canvas.config(cursor="crosshair")
+        self.canvas.bind("<B1-Motion>", self.on_button_rotate_motion)
+        self.canvas.bind("<ButtonRelease-1>", self.on_button_release_rotate)
+
+    def _on_button_rotate(self, event, current_canvas_img):
+        cursor_position = (event.x, event.y)
+        self.scale_img = df.draw_rotating(self.selected_area, cursor_position, self.background_color, current_canvas_img)
+        self.canvas.create_image(self.img_width / 2, self.img_height / 2, image=self.scale_img)
+
+    def on_button_release_rotate(self, event):
+        self._on_button_rotate(event, self.img)
+
+        self.default_state = 0
+        self.draw_rotate_tool()
+
+    def on_button_rotate_motion(self, event):
+        current_canvas_img = copy.copy(self.img)
+        self._on_button_rotate(event, current_canvas_img)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     def on_button_selected_area_motion(self, event):
         top_left_point = (min(self.x, event.x), min(self.y, event.y))
@@ -258,7 +322,7 @@ class App(dict):
 
     def _on_button_scale(self, event, current_canvas_img):
         cursor_position = (event.x, event.y)
-        self.scale_img = df.scalling(self.selected_area, cursor_position, self.background_color, current_canvas_img)
+        self.scale_img = df.draw_scaling(self.selected_area, cursor_position, self.background_color, current_canvas_img)
         self.canvas.create_image(self.img_width / 2, self.img_height / 2, image=self.scale_img)
 
     def on_button_release_scale(self, event):
