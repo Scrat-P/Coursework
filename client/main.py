@@ -4,6 +4,7 @@ from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog
 from PIL import Image, ImageTk
+from sender import Sender
 import drawing_functions as df
 
 
@@ -65,6 +66,8 @@ class App(dict):
         self.main_window.title(APP_TITLE)
         self.frame = Frame(self.main_window)
 
+        self.sender = Sender()
+
         self.img_width = IMG_INITIAL_WIDTH
         self.img_height = IMG_INITIAL_HEIGHT
         self.background_color = BACKGROUND_COLOR
@@ -79,10 +82,10 @@ class App(dict):
         self.active_color = RED_COLOR
         self.active_color_button = self['red_btn']
 
-        self.active_tool_button = self['line_btn']
+        self.active_tool_button = self['pencil_btn']
         self.default_state = 0
 
-        self.draw_line_tool()
+        self.draw_pencil_tool()
 
     def _init_canvas(self):
         self.canvas = Canvas(self.main_window, bg=self.background_color)
@@ -159,6 +162,9 @@ class App(dict):
 
         for tool_name in TOOL_BUTTONS:
             self._create_button_image(f'{tool_name}_img', (TOOL_BUTTONS_WIDTH, TOOL_BUTTONS_HEIGHT))
+        
+        self._create_button_image('eraser_img', (TOOL_BUTTONS_WIDTH, TOOL_BUTTONS_HEIGHT))
+
 
     def _create_button(self, toolbar, img, button_name, button_event):
         self[button_name] = Button(toolbar, image=img, command=button_event)
@@ -174,6 +180,8 @@ class App(dict):
                 tool_event = f'draw_{tool_name}_tool'
 
             self._create_button(self.drawbar, self[f'{tool_name}_img'], f'{tool_name}_btn', getattr(self, tool_event))
+
+        self._create_button(self.drawbar, self['eraser_img'], 'send_btn', self.send_canvas_to_server)
 
         self.description_btn = Label(self.drawbar, text="", width=40)
         self.description_btn.pack(side="top", fill="x")
@@ -486,6 +494,10 @@ class App(dict):
 
     def notbusy(self, cursor = ""):
         self.canvas.config(cursor=cursor)
+
+    def send_canvas_to_server(self):
+        img = copy.copy(self.img)
+        self.sender.send_image(img, self.img_width, self.img_height)
 
 
 if __name__ == "__main__":
