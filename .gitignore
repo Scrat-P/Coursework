@@ -5,3 +5,5 @@ build/
 dist/
 *.egg-info/
 *.sqlite3
+.idea/
+.DS_Store/
