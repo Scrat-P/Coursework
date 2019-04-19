@@ -203,3 +203,12 @@ def draw_flip_horizontal(selected_area, background_color, img):
     img.paste(flipped_img, (selected_area[0], selected_area[1]))
 
     return ImageTk.PhotoImage(img)
+
+
+def draw_flip_vertical(selected_area, background_color, img):
+    selected_img = img.crop(selected_area)
+    flipped_img = selected_img.transpose(Image.FLIP_LEFT_RIGHT)
+
+    img.paste(flipped_img, (selected_area[0], selected_area[1]))
+
+    return ImageTk.PhotoImage(img)
