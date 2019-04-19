@@ -212,3 +212,15 @@ def draw_flip_vertical(selected_area, background_color, img):
     img.paste(flipped_img, (selected_area[0], selected_area[1]))
 
     return ImageTk.PhotoImage(img)
+
+
+def draw_moving(selected_area, cursor_position, background_color, img):
+    selected_img = img.crop(selected_area)
+
+    top_left_point = (selected_area[0], selected_area[1])
+    bottom_right_point = (selected_area[2] - 1, selected_area[3] - 1)
+    img = erase_selected_area(top_left_point, bottom_right_point, background_color, img)
+
+    img.paste(selected_img, cursor_position)
+
+    return ImageTk.PhotoImage(img)
