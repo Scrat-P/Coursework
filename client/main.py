@@ -324,7 +324,35 @@ class App(dict):
         pass
 
     def draw_flip_horizontal_tool(self):
-        pass
+        self._activate_button('active_tool_button', 'flip_horizontal_tool_btn')
+
+        self.canvas.config(cursor="crosshair")
+        self.canvas.bind("<ButtonPress-1>", self.on_button_press)
+        self.canvas.bind("<B1-Motion>", self.on_button_selected_area_motion)
+        self.canvas.bind("<ButtonRelease-1>", self.on_button_release_flip_horizontal_selected_area)    
+
+        self.main_window.bind("<KeyPress-Shift_L>", lambda event: self.on_key_press())
+        self.main_window.bind("<KeyRelease-Shift_L>", lambda event: self.on_key_release())
+
+        self.active_tool = self.draw_flip_horizontal_tool
+
+    def on_button_release_flip_horizontal_selected_area(self, event):
+        self.selected_area = (
+            min(self.x, event.x), min(self.y, event.y),
+            max(self.x, event.x), max(self.y, event.y)
+        )
+        self.default_state = 0
+
+        self._unbind_buttons()
+        self.canvas.config(cursor="arrow")
+        self.canvas.bind("<ButtonPress-1>", self.on_button_flip_horizontal)
+
+    def on_button_flip_horizontal(self, event):
+        self.flip_img = df.draw_flip_horizontal(self.selected_area, self.background_color, self.img)
+        self.canvas.create_image(0, 0, anchor=NW, image=self.flip_img)
+
+        self.default_state = 0
+        self.draw_flip_horizontal_tool()
 
     def draw_eraser_tool(self):
         self._activate_button('active_tool_button', 'eraser_btn')
