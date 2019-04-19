@@ -78,6 +78,8 @@ class App(dict):
         self._init_canvas()
         self._init_menubar()
         self._init_color_picker()
+
+        self.main_window.bind("<KeyPress-Escape>", self.rollback)
         
         self.active_color = RED_COLOR
         self.active_color_button = self['red_btn']
@@ -85,7 +87,8 @@ class App(dict):
         self.active_tool_button = self['pencil_btn']
         self.default_state = 0
 
-        self.draw_pencil_tool()
+        self.active_tool = self.draw_pencil_tool
+        self.active_tool()
 
     def _init_canvas(self):
         self.canvas = Canvas(self.main_window, bg=self.background_color)
@@ -97,6 +100,12 @@ class App(dict):
         self.canvas.create_image(0, 0, anchor=NW, image=self.canvas.img)
 
         self.canvas.bind("<Configure>", self.configure)
+
+    def rollback(self, event):
+        self.canvas.img = ImageTk.PhotoImage(self.img)
+        self.canvas.create_image(0, 0, anchor=NW, image=self.canvas.img)
+
+        self.active_tool()
 
     def configure(self, event):
         self.canvas.delete("all")
@@ -220,21 +229,10 @@ class App(dict):
         self.canvas.bind("<B1-Motion>", self.on_button_draw_pencil)
         self.canvas.bind("<ButtonRelease-1>", self.on_button_draw_pencil)
 
+        self.active_tool = self.draw_pencil_tool
+
     def draw_move_tool(self):
         pass
-
-
-
-
-
-
-
-
-
-
-
-
-
 
     def draw_rotate_tool(self):
         self._activate_button('active_tool_button', 'rotate_tool_btn')
@@ -246,6 +244,8 @@ class App(dict):
 
         self.main_window.bind("<KeyPress-Shift_L>", lambda event: self.on_key_press())
         self.main_window.bind("<KeyRelease-Shift_L>", lambda event: self.on_key_release())
+
+        self.active_tool = self.draw_rotate_tool
 
     def on_button_release_rotate_selected_area(self, event):
         self.selected_area = (
@@ -261,7 +261,7 @@ class App(dict):
     def _on_button_rotate(self, event, current_canvas_img):
         cursor_position = (event.x, event.y)
         self.scale_img = df.draw_rotating(self.selected_area, cursor_position, self.background_color, current_canvas_img)
-        self.canvas.create_image(self.img_width / 2, self.img_height / 2, image=self.scale_img)
+        self.canvas.create_image(0, 0, anchor=NW, image=self.scale_img)
 
     def on_button_release_rotate(self, event):
         self._on_button_rotate(event, self.img)
@@ -273,30 +273,13 @@ class App(dict):
         current_canvas_img = copy.copy(self.img)
         self._on_button_rotate(event, current_canvas_img)
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
     def on_button_selected_area_motion(self, event):
         top_left_point = (min(self.x, event.x), min(self.y, event.y))
         bottom_right_point = (max(self.x, event.x), max(self.y, event.y))   
 
         current_canvas_img = copy.copy(self.img)
         self.rectangle_img = df.draw_with_rectangle_tool(top_left_point, bottom_right_point, DARK_COLOR, current_canvas_img, self.default_state)
-        self.canvas.create_image(self.img_width / 2, self.img_height / 2, image=self.rectangle_img) 
+        self.canvas.create_image(0, 0, anchor=NW, image=self.rectangle_img) 
 
     def draw_scale_tool(self):
         self._activate_button('active_tool_button', 'scale_tool_btn')
@@ -308,6 +291,8 @@ class App(dict):
 
         self.main_window.bind("<KeyPress-Shift_L>", lambda event: self.on_key_press())
         self.main_window.bind("<KeyRelease-Shift_L>", lambda event: self.on_key_release())
+
+        self.active_tool = self.draw_scale_tool
 
     def on_button_release_scale_selected_area(self, event):
         self.selected_area = (
@@ -323,7 +308,7 @@ class App(dict):
     def _on_button_scale(self, event, current_canvas_img):
         cursor_position = (event.x, event.y)
         self.scale_img = df.draw_scaling(self.selected_area, cursor_position, self.background_color, current_canvas_img)
-        self.canvas.create_image(self.img_width / 2, self.img_height / 2, image=self.scale_img)
+        self.canvas.create_image(0, 0, anchor=NW, image=self.scale_img)
 
     def on_button_release_scale(self, event):
         self._on_button_scale(event, self.img)
@@ -349,11 +334,13 @@ class App(dict):
         self.canvas.bind("<B1-Motion>", self.on_button_eraser)
         self.canvas.bind("<ButtonRelease-1>", self.on_button_eraser) 
 
+        self.active_tool = self.draw_eraser_tool
+
     def on_button_eraser(self, event):
         current_point = (event.x, event.y)
 
         self.eraser_img = df.erase_rectangle(current_point, self.background_color, self.img)
-        self.canvas.create_image(self.img_width / 2, self.img_height / 2, image=self.eraser_img)
+        self.canvas.create_image(0, 0, anchor=NW, image=self.eraser_img)
 
         self.x = event.x
         self.y = event.y
@@ -363,7 +350,7 @@ class App(dict):
         end_point = [event.x, event.y]
 
         self.line_img = df.draw_with_line_tool(start_point, end_point, self.active_color, current_canvas_img, self.default_state)
-        self.canvas.create_image(self.img_width / 2, self.img_height / 2, image=self.line_img)
+        self.canvas.create_image(0, 0, anchor=NW, image=self.line_img)
 
     def on_button_release_line(self, event):
         self._on_button_line(event, self.img)
@@ -383,6 +370,8 @@ class App(dict):
 
         self.main_window.bind("<KeyPress-Shift_L>", lambda event: self.on_key_press())
         self.main_window.bind("<KeyRelease-Shift_L>", lambda event: self.on_key_release())
+
+        self.active_tool = self.draw_line_tool
 
     def draw_curve_tool(self):
         pass
@@ -404,6 +393,8 @@ class App(dict):
         self.main_window.bind("<KeyPress-Shift_L>", lambda event: self.on_key_press())
         self.main_window.bind("<KeyRelease-Shift_L>", lambda event: self.on_key_release())
 
+        self.active_tool = self.draw_ellipse_tool
+
     def draw_rectangle_tool(self):
         self._activate_button('active_tool_button', 'rectangle_btn')
 
@@ -415,12 +406,14 @@ class App(dict):
         self.main_window.bind("<KeyPress-Shift_L>", lambda event: self.on_key_press())
         self.main_window.bind("<KeyRelease-Shift_L>", lambda event: self.on_key_release())
 
+        self.active_tool = self.draw_rectangle_tool
+
     def _on_button_rectangle(self, event, current_canvas_img):
         top_left_point = (min(self.x, event.x), min(self.y, event.y))
         bottom_right_point = (max(self.x, event.x), max(self.y, event.y))
 
         self.rectangle_img = df.draw_with_rectangle_tool(top_left_point, bottom_right_point, self.active_color, current_canvas_img, self.default_state)
-        self.canvas.create_image(self.img_width / 2, self.img_height / 2, image=self.rectangle_img)        
+        self.canvas.create_image(0, 0, anchor=NW, image=self.rectangle_img)        
 
     def on_button_rectangle_motion(self, event):
         current_canvas_img = copy.copy(self.img)
@@ -441,12 +434,14 @@ class App(dict):
         self.main_window.bind("<KeyPress-Shift_L>", lambda event: self.on_key_press())
         self.main_window.bind("<KeyRelease-Shift_L>", lambda event: self.on_key_release())
 
+        self.active_tool = self.draw_rhomb_tool
+
     def _on_button_rhomb(self, event, current_canvas_img):
         top_left_point = (min(self.x, event.x), min(self.y, event.y))
         bottom_right_point = (max(self.x, event.x), max(self.y, event.y))
 
         self.rhomb_img = df.draw_with_rhomb_tool(top_left_point, bottom_right_point, self.active_color, current_canvas_img, self.default_state)
-        self.canvas.create_image(self.img_width / 2, self.img_height / 2, image=self.rhomb_img)
+        self.canvas.create_image(0, 0, anchor=NW, image=self.rhomb_img)
 
     def on_button_rhomb_motion(self, event):
         current_canvas_img = copy.copy(self.img)
@@ -467,12 +462,14 @@ class App(dict):
         self.main_window.bind("<KeyPress-Shift_L>", lambda event: self.on_key_press())
         self.main_window.bind("<KeyRelease-Shift_L>", lambda event: self.on_key_release())
 
+        self.active_tool = self.draw_star_tool
+
     def _on_button_star(self, event, current_canvas_img):
         top_left_point = (min(self.x, event.x), min(self.y, event.y))
         bottom_right_point = (max(self.x, event.x), max(self.y, event.y))
 
         self.star_img = df.draw_with_star_tool(top_left_point, bottom_right_point, self.active_color, current_canvas_img, self.default_state)
-        self.canvas.create_image(self.img_width / 2, self.img_height / 2, image=self.star_img)        
+        self.canvas.create_image(0, 0, anchor=NW, image=self.star_img)        
 
     def on_button_star_motion(self, event):
         current_canvas_img = copy.copy(self.img)
@@ -493,12 +490,14 @@ class App(dict):
         self.main_window.bind("<KeyPress-Shift_L>", lambda event: self.on_key_press())
         self.main_window.bind("<KeyRelease-Shift_L>", lambda event: self.on_key_release())
 
+        self.active_tool = self.draw_arrow_right_tool
+
     def _on_button_arrow_right(self, event, current_canvas_img):
         top_left_point = (min(self.x, event.x), min(self.y, event.y))
         bottom_right_point = (max(self.x, event.x), max(self.y, event.y))
 
         self.arrow_right_img = df.draw_with_arrow_right_tool(top_left_point, bottom_right_point, self.active_color, current_canvas_img, self.default_state)
-        self.canvas.create_image(self.img_width / 2, self.img_height / 2, image=self.arrow_right_img)        
+        self.canvas.create_image(0, 0, anchor=NW, image=self.arrow_right_img)        
 
     def on_button_arrow_right_motion(self, event):
         current_canvas_img = copy.copy(self.img)
@@ -512,7 +511,7 @@ class App(dict):
         self.busy()
 
         self.filled_img = df.fill_color((event.x, event.y), self.active_color, self.img)
-        self.canvas.create_image(self.img_width / 2, self.img_height / 2, image=self.filled_img)
+        self.canvas.create_image(0, 0, anchor=NW, image=self.filled_img)
 
         self.notbusy("spraycan")
 
@@ -523,6 +522,8 @@ class App(dict):
         self.canvas.config(cursor="spraycan")
         self.canvas.bind("<Button-1>", self.on_button_fill)
 
+        self.active_tool = self.draw_fill_tool
+
     def on_button_press(self, event):
         self.x = event.x
         self.y = event.y
@@ -532,7 +533,7 @@ class App(dict):
         bottom_right_point = (max(self.x, event.x), max(self.y, event.y))
 
         self.ellipse_img = df.draw_with_ellipse_tool(top_left_point, bottom_right_point, self.active_color, current_canvas_img, self.default_state)
-        self.canvas.create_image(self.img_width / 2, self.img_height / 2, image=self.ellipse_img)        
+        self.canvas.create_image(0, 0, anchor=NW, image=self.ellipse_img)        
 
     def on_button_ellipse_motion(self, event):
         current_canvas_img = copy.copy(self.img)
@@ -547,7 +548,7 @@ class App(dict):
         current_point = (event.x, event.y)
 
         self.pencil_img = df.draw_with_pencil_tool(previous_point, current_point, self.active_color, self.img)
-        self.canvas.create_image(self.img_width / 2, self.img_height / 2, image=self.pencil_img)
+        self.canvas.create_image(0, 0, anchor=NW, image=self.pencil_img)
 
         self.x = event.x
         self.y = event.y
