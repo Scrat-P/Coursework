@@ -224,3 +224,14 @@ def draw_moving(selected_area, cursor_position, background_color, img):
     img.paste(selected_img, cursor_position)
 
     return ImageTk.PhotoImage(img)
+
+
+def draw_with_curve_tool(start_point, cursor_position, end_point, color, img):
+    t = 0
+    while t < 1:
+        x = int(start_point[0] * (1-t)**2 + 2*(1-t)*t*cursor_position[0] + end_point[0] * t**2)
+        y = int(start_point[1] * (1-t)**2 + 2*(1-t)*t*cursor_position[1] + end_point[1] * t**2)
+        img.putpixel((x,y), color)
+        t = t + 0.001
+
+    return ImageTk.PhotoImage(img)

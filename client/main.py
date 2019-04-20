@@ -79,7 +79,7 @@ class App(dict):
         self._init_menubar()
         self._init_color_picker()
 
-        self.main_window.bind("<KeyPress-Escape>", self.rollback)
+        self.main_window.bind('<KeyPress-Escape>', self.rollback)
         
         self.active_color = RED_COLOR
         self.active_color_button = self['red_btn']
@@ -94,12 +94,12 @@ class App(dict):
         self.canvas = Canvas(self.main_window, bg=self.background_color)
         self.canvas.pack(expand=1, fill=BOTH)
 
-        self.img = Image.new("RGB", [self.img_width, self.img_height], self.background_color)
+        self.img = Image.new('RGB', [self.img_width, self.img_height], self.background_color)
 
         self.canvas.img = ImageTk.PhotoImage(self.img)
         self.canvas.create_image(0, 0, anchor=NW, image=self.canvas.img)
 
-        self.canvas.bind("<Configure>", self.configure)
+        self.canvas.bind('<Configure>', self.configure)
 
     def rollback(self, event):
         self.canvas.img = ImageTk.PhotoImage(self.img)
@@ -108,7 +108,7 @@ class App(dict):
         self.active_tool()
 
     def configure(self, event):
-        self.canvas.delete("all")
+        self.canvas.delete('all')
         self.img_width = event.width
         self.img_height = event.height
 
@@ -121,25 +121,25 @@ class App(dict):
         menubar = Menu(self.main_window)
 
         file_menu = Menu(menubar, tearoff=0)
-        menubar.add_cascade(label="File", menu=file_menu)
-        file_menu.add_command(label="New", command=self.call_new_canvas)
-        file_menu.add_command(label="Open", command=self.call_open_image)
-        file_menu.add_command(label="Save as...", command=self.call_save_as_image)
-        file_menu.add_command(label="Exit", command=self.frame.quit)
+        menubar.add_cascade(label='File', menu=file_menu)
+        file_menu.add_command(label='New', command=self.call_new_canvas)
+        file_menu.add_command(label='Open', command=self.call_open_image)
+        file_menu.add_command(label='Save as...', command=self.call_save_as_image)
+        file_menu.add_command(label='Exit', command=self.frame.quit)
 
-        menubar.add_command(label="About")
+        menubar.add_command(label='About')
 
         self.main_window.config(menu=menubar)
 
     def call_save_as_image(self):
-        file_name = filedialog.asksaveasfilename(defaultextension=".png")
+        file_name = filedialog.asksaveasfilename(defaultextension='.png')
 
         if file_name is not None:
             self.img.save(file_name)
 
     def call_new_canvas(self):
-        self.canvas.delete("all")
-        self.img = Image.new("RGB", (self.img_width, self.img_height), self.background_color)
+        self.canvas.delete('all')
+        self.img = Image.new('RGB', (self.img_width, self.img_height), self.background_color)
 
         self.canvas.img = ImageTk.PhotoImage(self.img)
         self.canvas.create_image(0, 0, anchor=NW, image=self.canvas.img)
@@ -147,13 +147,13 @@ class App(dict):
     def call_open_image(self):
         file_name = filedialog.askopenfilename(
             filetypes=(
-                ("Supported image files", "*.jpg *.jpeg *.png *.bmp *.ico"),
-                ("All files", "*.*") 
+                ('Supported image files', '*.jpg *.jpeg *.png *.bmp *.ico'),
+                ('All files', '*.*') 
             )
         )
 
         if file_name is not None:
-            self.canvas.delete("all")
+            self.canvas.delete('all')
 
             self.img = Image.open(file_name).resize((self.img_width, self.img_height))
 
@@ -161,7 +161,7 @@ class App(dict):
             self.canvas.create_image(0, 0, anchor=NW, image=self.canvas.img)
 
     def _create_button_image(self, img, size):
-        image_path = os.path.join(IMAGES_FOLDER_PATH, f"{img}.png")
+        image_path = os.path.join(IMAGES_FOLDER_PATH, f'{img}.png')
         img_obj = Image.open(image_path).resize(size, Image.ANTIALIAS)
         self[img] = ImageTk.PhotoImage(img_obj)
 
@@ -192,8 +192,8 @@ class App(dict):
 
         self._create_button(self.drawbar, self['eraser_img'], 'send_btn', self.send_canvas_to_server)
 
-        self.description_btn = Label(self.drawbar, text="", width=40)
-        self.description_btn.pack(side="top", fill="x")
+        self.description_btn = Label(self.drawbar, text='', width=40)
+        self.description_btn.pack(side='top', fill='x')
 
         self.drawbar.pack(side=TOP, fill=X)
 
@@ -217,51 +217,30 @@ class App(dict):
         getattr(self, button_attr).config(relief=SUNKEN)
 
     def _unbind_buttons(self):
-        self.canvas.unbind("<ButtonPress-1>")
-        self.canvas.unbind("<B1-Motion>")
-        self.canvas.unbind("<ButtonRelease-1>")
+        self.canvas.unbind('<ButtonPress-1>')
+        self.canvas.unbind('<B1-Motion>')
+        self.canvas.unbind('<ButtonRelease-1>')
 
     def draw_pencil_tool(self):
         self._activate_button('active_tool_button', 'pencil_btn')
 
-        self.canvas.config(cursor="pencil")
-        self.canvas.bind("<ButtonPress-1>", self.on_button_press)
-        self.canvas.bind("<B1-Motion>", self.on_button_draw_pencil)
-        self.canvas.bind("<ButtonRelease-1>", self.on_button_draw_pencil)
+        self.canvas.config(cursor='pencil')
+        self.canvas.bind('<ButtonPress-1>', self.on_button_press)
+        self.canvas.bind('<B1-Motion>', self.on_button_draw_pencil)
+        self.canvas.bind('<ButtonRelease-1>', self.on_button_draw_pencil)
 
         self.active_tool = self.draw_pencil_tool
-
-
-
-
-
-
-
-
-
-
-    def draw_move_tool(self):
-        pass
-
-
-
-
-
-
-
-
-
 
     def draw_move_tool(self):
         self._activate_button('active_tool_button', 'move_tool_btn')
 
-        self.canvas.config(cursor="crosshair")
-        self.canvas.bind("<ButtonPress-1>", self.on_button_press)
-        self.canvas.bind("<B1-Motion>", self.on_button_selected_area_motion)
-        self.canvas.bind("<ButtonRelease-1>", self.on_button_release_move_selected_area)    
+        self.canvas.config(cursor='crosshair')
+        self.canvas.bind('<ButtonPress-1>', self.on_button_press)
+        self.canvas.bind('<B1-Motion>', self.on_button_selected_area_motion)
+        self.canvas.bind('<ButtonRelease-1>', self.on_button_release_move_selected_area)    
 
-        self.main_window.bind("<KeyPress-Shift_L>", lambda event: self.on_key_press())
-        self.main_window.bind("<KeyRelease-Shift_L>", lambda event: self.on_key_release())
+        self.main_window.bind('<KeyPress-Shift_L>', lambda event: self.on_key_press())
+        self.main_window.bind('<KeyRelease-Shift_L>', lambda event: self.on_key_release())
 
         self.active_tool = self.draw_move_tool
 
@@ -272,14 +251,14 @@ class App(dict):
         )
         self.default_state = 0
 
-        self.canvas.config(cursor="crosshair")
-        self.canvas.bind("<B1-Motion>", self.on_button_move_motion)
-        self.canvas.bind("<ButtonRelease-1>", self.on_button_release_move)
+        self.canvas.config(cursor='crosshair')
+        self.canvas.bind('<B1-Motion>', self.on_button_move_motion)
+        self.canvas.bind('<ButtonRelease-1>', self.on_button_release_move)
 
     def _on_button_move(self, event, current_canvas_img):
         cursor_position = (event.x, event.y)
-        self.move_img = df.draw_moving(self.selected_area, cursor_position, self.background_color, current_canvas_img)
-        self.canvas.create_image(0, 0, anchor=NW, image=self.move_img)
+        self.moved_img = df.draw_moving(self.selected_area, cursor_position, self.background_color, current_canvas_img)
+        self.canvas.create_image(0, 0, anchor=NW, image=self.moved_img)
 
     def on_button_release_move(self, event):
         self._on_button_move(event, self.img)
@@ -291,28 +270,16 @@ class App(dict):
         current_canvas_img = copy.copy(self.img)
         self._on_button_move(event, current_canvas_img)
 
-
-
-
-
-
-
-
-
-
-
-
-
     def draw_rotate_tool(self):
         self._activate_button('active_tool_button', 'rotate_tool_btn')
 
-        self.canvas.config(cursor="crosshair")
-        self.canvas.bind("<ButtonPress-1>", self.on_button_press)
-        self.canvas.bind("<B1-Motion>", self.on_button_selected_area_motion)
-        self.canvas.bind("<ButtonRelease-1>", self.on_button_release_rotate_selected_area)    
+        self.canvas.config(cursor='crosshair')
+        self.canvas.bind('<ButtonPress-1>', self.on_button_press)
+        self.canvas.bind('<B1-Motion>', self.on_button_selected_area_motion)
+        self.canvas.bind('<ButtonRelease-1>', self.on_button_release_rotate_selected_area)    
 
-        self.main_window.bind("<KeyPress-Shift_L>", lambda event: self.on_key_press())
-        self.main_window.bind("<KeyRelease-Shift_L>", lambda event: self.on_key_release())
+        self.main_window.bind('<KeyPress-Shift_L>', lambda event: self.on_key_press())
+        self.main_window.bind('<KeyRelease-Shift_L>', lambda event: self.on_key_release())
 
         self.active_tool = self.draw_rotate_tool
 
@@ -323,14 +290,14 @@ class App(dict):
         )
         self.default_state = 0
 
-        self.canvas.config(cursor="crosshair")
-        self.canvas.bind("<B1-Motion>", self.on_button_rotate_motion)
-        self.canvas.bind("<ButtonRelease-1>", self.on_button_release_rotate)
+        self.canvas.config(cursor='crosshair')
+        self.canvas.bind('<B1-Motion>', self.on_button_rotate_motion)
+        self.canvas.bind('<ButtonRelease-1>', self.on_button_release_rotate)
 
     def _on_button_rotate(self, event, current_canvas_img):
         cursor_position = (event.x, event.y)
-        self.rotate_img = df.draw_rotating(self.selected_area, cursor_position, self.background_color, current_canvas_img)
-        self.canvas.create_image(0, 0, anchor=NW, image=self.rotate_img)
+        self.rotated_img = df.draw_rotating(self.selected_area, cursor_position, self.background_color, current_canvas_img)
+        self.canvas.create_image(0, 0, anchor=NW, image=self.rotated_img)
 
     def on_button_release_rotate(self, event):
         self._on_button_rotate(event, self.img)
@@ -347,19 +314,19 @@ class App(dict):
         bottom_right_point = (max(self.x, event.x), max(self.y, event.y))   
 
         current_canvas_img = copy.copy(self.img)
-        self.rectangle_img = df.draw_with_rectangle_tool(top_left_point, bottom_right_point, DARK_COLOR, current_canvas_img, self.default_state)
-        self.canvas.create_image(0, 0, anchor=NW, image=self.rectangle_img) 
+        self.selected_img = df.draw_with_rectangle_tool(top_left_point, bottom_right_point, DARK_COLOR, current_canvas_img, self.default_state)
+        self.canvas.create_image(0, 0, anchor=NW, image=self.selected_img) 
 
     def draw_scale_tool(self):
         self._activate_button('active_tool_button', 'scale_tool_btn')
 
-        self.canvas.config(cursor="crosshair")
-        self.canvas.bind("<ButtonPress-1>", self.on_button_press)
-        self.canvas.bind("<B1-Motion>", self.on_button_selected_area_motion)
-        self.canvas.bind("<ButtonRelease-1>", self.on_button_release_scale_selected_area)    
+        self.canvas.config(cursor='crosshair')
+        self.canvas.bind('<ButtonPress-1>', self.on_button_press)
+        self.canvas.bind('<B1-Motion>', self.on_button_selected_area_motion)
+        self.canvas.bind('<ButtonRelease-1>', self.on_button_release_scale_selected_area)    
 
-        self.main_window.bind("<KeyPress-Shift_L>", lambda event: self.on_key_press())
-        self.main_window.bind("<KeyRelease-Shift_L>", lambda event: self.on_key_release())
+        self.main_window.bind('<KeyPress-Shift_L>', lambda event: self.on_key_press())
+        self.main_window.bind('<KeyRelease-Shift_L>', lambda event: self.on_key_release())
 
         self.active_tool = self.draw_scale_tool
 
@@ -370,14 +337,14 @@ class App(dict):
         )
         self.default_state = 0
 
-        self.canvas.config(cursor="crosshair")
-        self.canvas.bind("<B1-Motion>", self.on_button_scale_motion)
-        self.canvas.bind("<ButtonRelease-1>", self.on_button_release_scale)
+        self.canvas.config(cursor='crosshair')
+        self.canvas.bind('<B1-Motion>', self.on_button_scale_motion)
+        self.canvas.bind('<ButtonRelease-1>', self.on_button_release_scale)
 
     def _on_button_scale(self, event, current_canvas_img):
         cursor_position = (event.x, event.y)
-        self.scale_img = df.draw_scaling(self.selected_area, cursor_position, self.background_color, current_canvas_img)
-        self.canvas.create_image(0, 0, anchor=NW, image=self.scale_img)
+        self.scaled_img = df.draw_scaling(self.selected_area, cursor_position, self.background_color, current_canvas_img)
+        self.canvas.create_image(0, 0, anchor=NW, image=self.scaled_img)
 
     def on_button_release_scale(self, event):
         self._on_button_scale(event, self.img)
@@ -392,13 +359,13 @@ class App(dict):
     def draw_flip_vertical_tool(self):
         self._activate_button('active_tool_button', 'flip_vertical_tool_btn')
 
-        self.canvas.config(cursor="crosshair")
-        self.canvas.bind("<ButtonPress-1>", self.on_button_press)
-        self.canvas.bind("<B1-Motion>", self.on_button_selected_area_motion)
-        self.canvas.bind("<ButtonRelease-1>", self.on_button_release_flip_vertical_selected_area)    
+        self.canvas.config(cursor='crosshair')
+        self.canvas.bind('<ButtonPress-1>', self.on_button_press)
+        self.canvas.bind('<B1-Motion>', self.on_button_selected_area_motion)
+        self.canvas.bind('<ButtonRelease-1>', self.on_button_release_flip_vertical_selected_area)    
 
-        self.main_window.bind("<KeyPress-Shift_L>", lambda event: self.on_key_press())
-        self.main_window.bind("<KeyRelease-Shift_L>", lambda event: self.on_key_release())
+        self.main_window.bind('<KeyPress-Shift_L>', lambda event: self.on_key_press())
+        self.main_window.bind('<KeyRelease-Shift_L>', lambda event: self.on_key_release())
 
         self.active_tool = self.draw_flip_vertical_tool
 
@@ -410,12 +377,12 @@ class App(dict):
         self.default_state = 0
 
         self._unbind_buttons()
-        self.canvas.config(cursor="arrow")
-        self.canvas.bind("<ButtonRelease-1>", self.on_button_flip_vertical)
+        self.canvas.config(cursor='arrow')
+        self.canvas.bind('<ButtonRelease-1>', self.on_button_flip_vertical)
 
     def on_button_flip_vertical(self, event):
-        self.flip_img = df.draw_flip_vertical(self.selected_area, self.background_color, self.img)
-        self.canvas.create_image(0, 0, anchor=NW, image=self.flip_img)
+        self.fliped_img = df.draw_flip_vertical(self.selected_area, self.background_color, self.img)
+        self.canvas.create_image(0, 0, anchor=NW, image=self.fliped_img)
 
         self.default_state = 0
         self.draw_flip_vertical_tool()
@@ -423,13 +390,13 @@ class App(dict):
     def draw_flip_horizontal_tool(self):
         self._activate_button('active_tool_button', 'flip_horizontal_tool_btn')
 
-        self.canvas.config(cursor="crosshair")
-        self.canvas.bind("<ButtonPress-1>", self.on_button_press)
-        self.canvas.bind("<B1-Motion>", self.on_button_selected_area_motion)
-        self.canvas.bind("<ButtonRelease-1>", self.on_button_release_flip_horizontal_selected_area)    
+        self.canvas.config(cursor='crosshair')
+        self.canvas.bind('<ButtonPress-1>', self.on_button_press)
+        self.canvas.bind('<B1-Motion>', self.on_button_selected_area_motion)
+        self.canvas.bind('<ButtonRelease-1>', self.on_button_release_flip_horizontal_selected_area)    
 
-        self.main_window.bind("<KeyPress-Shift_L>", lambda event: self.on_key_press())
-        self.main_window.bind("<KeyRelease-Shift_L>", lambda event: self.on_key_release())
+        self.main_window.bind('<KeyPress-Shift_L>', lambda event: self.on_key_press())
+        self.main_window.bind('<KeyRelease-Shift_L>', lambda event: self.on_key_release())
 
         self.active_tool = self.draw_flip_horizontal_tool
 
@@ -441,12 +408,12 @@ class App(dict):
         self.default_state = 0
 
         self._unbind_buttons()
-        self.canvas.config(cursor="arrow")
-        self.canvas.bind("<ButtonRelease-1>", self.on_button_flip_horizontal)
+        self.canvas.config(cursor='arrow')
+        self.canvas.bind('<ButtonRelease-1>', self.on_button_flip_horizontal)
 
     def on_button_flip_horizontal(self, event):
-        self.flip_img = df.draw_flip_horizontal(self.selected_area, self.background_color, self.img)
-        self.canvas.create_image(0, 0, anchor=NW, image=self.flip_img)
+        self.fliped_img = df.draw_flip_horizontal(self.selected_area, self.background_color, self.img)
+        self.canvas.create_image(0, 0, anchor=NW, image=self.fliped_img)
 
         self.default_state = 0
         self.draw_flip_horizontal_tool()
@@ -454,10 +421,10 @@ class App(dict):
     def draw_eraser_tool(self):
         self._activate_button('active_tool_button', 'eraser_btn')
 
-        self.canvas.config(cursor="dotbox")
-        self.canvas.bind("<ButtonPress-1>", self.on_button_press)
-        self.canvas.bind("<B1-Motion>", self.on_button_eraser)
-        self.canvas.bind("<ButtonRelease-1>", self.on_button_eraser) 
+        self.canvas.config(cursor='dotbox')
+        self.canvas.bind('<ButtonPress-1>', self.on_button_press)
+        self.canvas.bind('<B1-Motion>', self.on_button_eraser)
+        self.canvas.bind('<ButtonRelease-1>', self.on_button_eraser) 
 
         self.active_tool = self.draw_eraser_tool
 
@@ -488,13 +455,13 @@ class App(dict):
     def draw_line_tool(self):
         self._activate_button('active_tool_button', 'line_btn')
 
-        self.canvas.config(cursor="crosshair")
-        self.canvas.bind("<ButtonPress-1>", self.on_button_press)
-        self.canvas.bind("<B1-Motion>", self.on_button_line_motion)
-        self.canvas.bind("<ButtonRelease-1>", self.on_button_release_line)
+        self.canvas.config(cursor='crosshair')
+        self.canvas.bind('<ButtonPress-1>', self.on_button_press)
+        self.canvas.bind('<B1-Motion>', self.on_button_line_motion)
+        self.canvas.bind('<ButtonRelease-1>', self.on_button_release_line)
 
-        self.main_window.bind("<KeyPress-Shift_L>", lambda event: self.on_key_press())
-        self.main_window.bind("<KeyRelease-Shift_L>", lambda event: self.on_key_release())
+        self.main_window.bind('<KeyPress-Shift_L>', lambda event: self.on_key_press())
+        self.main_window.bind('<KeyRelease-Shift_L>', lambda event: self.on_key_release())
 
         self.active_tool = self.draw_line_tool
 
@@ -510,26 +477,26 @@ class App(dict):
     def draw_ellipse_tool(self):
         self._activate_button('active_tool_button', 'ellipse_btn')
 
-        self.canvas.config(cursor="circle")
-        self.canvas.bind("<ButtonPress-1>", self.on_button_press)
-        self.canvas.bind("<B1-Motion>", self.on_button_ellipse_motion)
-        self.canvas.bind("<ButtonRelease-1>", self.on_button_release_ellipse) 
+        self.canvas.config(cursor='circle')
+        self.canvas.bind('<ButtonPress-1>', self.on_button_press)
+        self.canvas.bind('<B1-Motion>', self.on_button_ellipse_motion)
+        self.canvas.bind('<ButtonRelease-1>', self.on_button_release_ellipse) 
 
-        self.main_window.bind("<KeyPress-Shift_L>", lambda event: self.on_key_press())
-        self.main_window.bind("<KeyRelease-Shift_L>", lambda event: self.on_key_release())
+        self.main_window.bind('<KeyPress-Shift_L>', lambda event: self.on_key_press())
+        self.main_window.bind('<KeyRelease-Shift_L>', lambda event: self.on_key_release())
 
         self.active_tool = self.draw_ellipse_tool
 
     def draw_rectangle_tool(self):
         self._activate_button('active_tool_button', 'rectangle_btn')
 
-        self.canvas.config(cursor="crosshair")
-        self.canvas.bind("<ButtonPress-1>", self.on_button_press)
-        self.canvas.bind("<B1-Motion>", self.on_button_rectangle_motion)
-        self.canvas.bind("<ButtonRelease-1>", self.on_button_release_rectangle) 
+        self.canvas.config(cursor='crosshair')
+        self.canvas.bind('<ButtonPress-1>', self.on_button_press)
+        self.canvas.bind('<B1-Motion>', self.on_button_rectangle_motion)
+        self.canvas.bind('<ButtonRelease-1>', self.on_button_release_rectangle) 
 
-        self.main_window.bind("<KeyPress-Shift_L>", lambda event: self.on_key_press())
-        self.main_window.bind("<KeyRelease-Shift_L>", lambda event: self.on_key_release())
+        self.main_window.bind('<KeyPress-Shift_L>', lambda event: self.on_key_press())
+        self.main_window.bind('<KeyRelease-Shift_L>', lambda event: self.on_key_release())
 
         self.active_tool = self.draw_rectangle_tool
 
@@ -551,13 +518,13 @@ class App(dict):
     def draw_rhomb_tool(self):
         self._activate_button('active_tool_button', 'rhomb_btn')
 
-        self.canvas.config(cursor="crosshair")
-        self.canvas.bind("<ButtonPress-1>", self.on_button_press)
-        self.canvas.bind("<B1-Motion>", self.on_button_rhomb_motion)
-        self.canvas.bind("<ButtonRelease-1>", self.on_button_release_rhomb) 
+        self.canvas.config(cursor='crosshair')
+        self.canvas.bind('<ButtonPress-1>', self.on_button_press)
+        self.canvas.bind('<B1-Motion>', self.on_button_rhomb_motion)
+        self.canvas.bind('<ButtonRelease-1>', self.on_button_release_rhomb) 
 
-        self.main_window.bind("<KeyPress-Shift_L>", lambda event: self.on_key_press())
-        self.main_window.bind("<KeyRelease-Shift_L>", lambda event: self.on_key_release())
+        self.main_window.bind('<KeyPress-Shift_L>', lambda event: self.on_key_press())
+        self.main_window.bind('<KeyRelease-Shift_L>', lambda event: self.on_key_release())
 
         self.active_tool = self.draw_rhomb_tool
 
@@ -579,13 +546,13 @@ class App(dict):
     def draw_star_tool(self):
         self._activate_button('active_tool_button', 'star_btn')
 
-        self.canvas.config(cursor="crosshair")
-        self.canvas.bind("<ButtonPress-1>", self.on_button_press)
-        self.canvas.bind("<B1-Motion>", self.on_button_star_motion)
-        self.canvas.bind("<ButtonRelease-1>", self.on_button_release_star) 
+        self.canvas.config(cursor='crosshair')
+        self.canvas.bind('<ButtonPress-1>', self.on_button_press)
+        self.canvas.bind('<B1-Motion>', self.on_button_star_motion)
+        self.canvas.bind('<ButtonRelease-1>', self.on_button_release_star) 
 
-        self.main_window.bind("<KeyPress-Shift_L>", lambda event: self.on_key_press())
-        self.main_window.bind("<KeyRelease-Shift_L>", lambda event: self.on_key_release())
+        self.main_window.bind('<KeyPress-Shift_L>', lambda event: self.on_key_press())
+        self.main_window.bind('<KeyRelease-Shift_L>', lambda event: self.on_key_release())
 
         self.active_tool = self.draw_star_tool
 
@@ -604,16 +571,52 @@ class App(dict):
         self._on_button_star(event, self.img)
         self.default_state = 0
 
+    def draw_curve_tool(self):
+        self._activate_button('active_tool_button', 'curve_btn')
+
+        self.curve_points = []
+
+        self.canvas.config(cursor='crosshair')
+        self.canvas.bind('<ButtonPress-1>', self.add_curve_point)
+        self.canvas.bind('<B1-Motion>', self.on_button_curve_motion)
+        self.canvas.bind('<ButtonRelease-1>', self.on_button_release_curve) 
+
+        self.active_tool = self.draw_curve_tool
+
+    def add_curve_point(self, event):
+        if len(self.curve_points) >= 2:
+            self.curve_points = [self.curve_points[-1]]
+        self.curve_points.append((event.x, event.y))
+
+    def _on_button_curve(self, event, current_canvas_img):
+        if len(self.curve_points) != 2:
+            return
+
+        cursor_position = (event.x, event.y)
+
+        self.curve_img = df.draw_with_curve_tool(self.curve_points[0], cursor_position, self.curve_points[1], self.active_color, current_canvas_img)
+        self.canvas.create_image(0, 0, anchor=NW, image=self.curve_img)        
+
+    def on_button_curve_motion(self, event):
+        current_canvas_img = copy.copy(self.img)
+        self._on_button_curve(event, current_canvas_img)
+
+    def on_button_release_curve(self, event):
+        self._on_button_curve(event, self.img)
+
+        if len(self.curve_points) == 2:
+            self.draw_curve_tool()
+
     def draw_arrow_right_tool(self):
         self._activate_button('active_tool_button', 'arrow_right_btn')
 
-        self.canvas.config(cursor="crosshair")
-        self.canvas.bind("<ButtonPress-1>", self.on_button_press)
-        self.canvas.bind("<B1-Motion>", self.on_button_arrow_right_motion)
-        self.canvas.bind("<ButtonRelease-1>", self.on_button_release_arrow_right) 
+        self.canvas.config(cursor='crosshair')
+        self.canvas.bind('<ButtonPress-1>', self.on_button_press)
+        self.canvas.bind('<B1-Motion>', self.on_button_arrow_right_motion)
+        self.canvas.bind('<ButtonRelease-1>', self.on_button_release_arrow_right) 
 
-        self.main_window.bind("<KeyPress-Shift_L>", lambda event: self.on_key_press())
-        self.main_window.bind("<KeyRelease-Shift_L>", lambda event: self.on_key_release())
+        self.main_window.bind('<KeyPress-Shift_L>', lambda event: self.on_key_press())
+        self.main_window.bind('<KeyRelease-Shift_L>', lambda event: self.on_key_release())
 
         self.active_tool = self.draw_arrow_right_tool
 
@@ -638,14 +641,14 @@ class App(dict):
         self.filled_img = df.fill_color((event.x, event.y), self.active_color, self.img)
         self.canvas.create_image(0, 0, anchor=NW, image=self.filled_img)
 
-        self.notbusy("spraycan")
+        self.notbusy('spraycan')
 
     def draw_fill_tool(self):
         self._unbind_buttons()
         self._activate_button('active_tool_button', 'fill_tool_btn')
 
-        self.canvas.config(cursor="spraycan")
-        self.canvas.bind("<Button-1>", self.on_button_fill)
+        self.canvas.config(cursor='spraycan')
+        self.canvas.bind('<Button-1>', self.on_button_fill)
 
         self.active_tool = self.draw_fill_tool
 
@@ -679,10 +682,10 @@ class App(dict):
         self.y = event.y
 
     def busy(self):
-        self.canvas.config(cursor="watch")
+        self.canvas.config(cursor='watch')
         self.main_window.update()
 
-    def notbusy(self, cursor = ""):
+    def notbusy(self, cursor = ''):
         self.canvas.config(cursor=cursor)
 
     def send_canvas_to_server(self):
@@ -690,7 +693,7 @@ class App(dict):
         self.sender.send_image(img, self.img_width, self.img_height)
 
 
-if __name__ == "__main__":
+if __name__ == '__main__':
     main_window = Tk()
     main_window.geometry(f'{IMG_INITIAL_WIDTH}x{IMG_INITIAL_HEIGHT}')
     main_window.style = ttk.Style()
