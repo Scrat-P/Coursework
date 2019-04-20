@@ -59,6 +59,108 @@ TOOL_BUTTONS = (
     'fill_tool'
 )
 
+BUTTONS_DESCRIPTION = {
+  'move_tool_btn': {
+    'title': 'Transition',
+    'description': 'Select a region, then click and move the object.'
+  },
+  'rotate_tool_btn': {
+    'title': 'Rotation',
+    'description': 'Select a region, then click and rotate the object.'
+  },
+  'scale_tool_btn': {
+    'title': 'Scalling',
+    'description': 'Select a region, then click and drag the object.'
+  },  
+  'flip_vertical_tool_btn': {
+    'title': 'Flip Vertical',
+    'description': 'Select a region, then click.'
+  },
+  'flip_horizontal_tool_btn': {
+    'title': 'Flip horizontal',
+    'description': 'Select a region, then click.'
+  },
+  'pencil_btn': {
+    'title': 'Pencil',
+    'description': 'Draw pattern.'
+  },
+  'eraser_btn': {
+    'title': 'Eraser',
+    'description': 'Erase pattern.'
+  },
+  'line_btn': {
+    'title': 'Line',
+    'description': 'Choosing a point, then move the mouse.\n'
+                   'Hold SHIFT to draw vertical or horizontal line.'
+  },
+  'curve_btn': {
+    'title': 'Curve',
+    'description': 'Choosing two point, then move the mouse.'
+  },
+  'ellipse_btn': {
+    'title': 'Eclipse',
+    'description': 'Choosing a point, then move the mouse.\n'
+                   'Hold SHIFT to draw circle.'
+  },
+  'rectangle_btn': {
+    'title': 'Rectangle',
+    'description': 'Choosing a point, then move the mouse.\n'
+                   'Hold SHIFT to draw square.'
+  },  
+  'rhomb_btn': {
+    'title': 'Rhomb shape',
+    'description': 'Choosing a point, then move the mouse.'
+  },
+  'star_btn': {
+    'title': 'Star shape',
+    'description': 'Choosing a point, then move the mouse.'
+  },
+  'arrow_right_btn': {
+    'title': 'Arrow shape',
+    'description': 'Choosing a point, then move the mouse.'
+  },
+  'fill_tool_btn': {
+    'title': 'Fill color',
+    'description': 'Choosing a point in region.'
+  },
+  'dark_btn': {
+    'title': 'Dark color',
+    'description': ''
+  },
+  'red_btn': {
+    'title': 'Red color',
+    'description': ''
+  },
+  'green_btn': {
+    'title': 'Green color',
+    'description': ''
+  },
+  'yellow_btn': {
+    'title': 'Yellow color',
+    'description': ''
+  },
+  'orange_btn': {
+    'title': 'Orange color',
+    'description': ''
+  },
+  'pink_btn': {
+    'title': 'Pink color',
+    'description': ''
+  },
+  'blue_light_btn': {
+    'title': 'Blue light color',
+    'description': ''
+  },
+  'blue_malibu_btn': {
+    'title': 'Blue malibu color',
+    'description': ''
+  },
+  'purple_btn': {
+    'title': 'Purple color',
+    'description': ''
+  }
+}
+
 
 class App(dict):
     def __init__(self, main_window):
@@ -174,13 +276,24 @@ class App(dict):
         
         self._create_button_image('eraser_img', (TOOL_BUTTONS_WIDTH, TOOL_BUTTONS_HEIGHT))
 
+    def on_enter_button(self, event, button_name):
+        content = BUTTONS_DESCRIPTION[button_name]
+        button_description = content['title'] + '\n' + content['description']
+        self.description_label.configure(text=button_description)
+
+    def on_leave_button(self, enter):
+        self.description_label.configure(text='')
 
     def _create_button(self, toolbar, img, button_name, button_event):
         self[button_name] = Button(toolbar, image=img, command=button_event)
+
+        self[button_name].bind('<Enter>', lambda event: self.on_enter_button(event, button_name))
+        self[button_name].bind('<Leave>', lambda event: self.on_leave_button(event))
+
         self[button_name].pack(side=LEFT, fill=X)
 
     def _init_drawbar(self):
-        self.drawbar = Frame(self.main_window, borderwidth=0, relief='raised')
+        self.drawbar = Frame(self.main_window, borderwidth=0, relief=RAISED)
 
         for tool_name in TOOL_BUTTONS:
             if tool_name.endswith('tool'):
@@ -192,13 +305,13 @@ class App(dict):
 
         self._create_button(self.drawbar, self['eraser_img'], 'send_btn', self.send_canvas_to_server)
 
-        self.description_btn = Label(self.drawbar, text='', width=40)
-        self.description_btn.pack(side='top', fill='x')
+        self.description_label = Label(self.drawbar, text='', width=40)
+        self.description_label.pack(side='top', fill='x')
 
         self.drawbar.pack(side=TOP, fill=X)
 
     def _init_color_picker(self):
-        self.color_toolbar = Frame(self.main_window, borderwidth=0, relief='raised')
+        self.color_toolbar = Frame(self.main_window, borderwidth=0, relief=RAISED)
 
         for color_name, color_rgb in COLOR_BUTTONS:
             self._create_button(self.color_toolbar, self[f'{color_name}_img'], f'{color_name}_btn', (lambda x=color_rgb, y=f'{color_name}_btn': self.on_change_color(x, y)))
@@ -678,8 +791,7 @@ class App(dict):
         self.pencil_img = df.draw_with_pencil_tool(previous_point, current_point, self.active_color, self.img)
         self.canvas.create_image(0, 0, anchor=NW, image=self.pencil_img)
 
-        self.x = event.x
-        self.y = event.y
+        self.on_button_press(event)
 
     def busy(self):
         self.canvas.config(cursor='watch')
