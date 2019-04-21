@@ -29,6 +29,7 @@ COLOR_BUTTONS_WIDTH = 20
 COLOR_BUTTONS_HEIGHT = 20
 COLOR_BUTTONS = (
     ('dark', DARK_COLOR),
+    ('white', WHITE_COLOR),
     ('red', RED_COLOR),
     ('green', GREEN_COLOR),
     ('yellow', YELLOW_COLOR),
@@ -306,7 +307,7 @@ class App(dict):
         self._create_button(self.drawbar, self['eraser_img'], 'send_btn', self.send_canvas_to_server)
 
         self.description_label = Label(self.drawbar, text='', width=40)
-        self.description_label.pack(side='top', fill='x')
+        self.description_label.pack(side=TOP, fill=X)
 
         self.drawbar.pack(side=TOP, fill=X)
 
@@ -317,6 +318,17 @@ class App(dict):
             self._create_button(self.color_toolbar, self[f'{color_name}_img'], f'{color_name}_btn', (lambda x=color_rgb, y=f'{color_name}_btn': self.on_change_color(x, y)))
 
         self.color_toolbar.pack(side=BOTTOM, fill=X)
+
+        self.line_width = 0
+        self.width_scale = Scale(self.color_toolbar, orient=HORIZONTAL, from_=1, to=15, sliderlength=15, showvalue=0, command=self.change_line_width)
+        self.width_scale.pack(side=RIGHT)
+
+        self.line_width_label = Label(self.color_toolbar, text='Line width:   0 ',)
+        self.line_width_label.pack(side=RIGHT)
+
+    def change_line_width(self, new_width):
+        self.line_width = int(new_width)
+        self.line_width_label.configure(text=f'Line width:  {new_width:>2} ')
 
     def on_change_color(self, color, color_button_name):
         self._activate_button('active_color_button', color_button_name)
@@ -554,7 +566,7 @@ class App(dict):
         start_point = [self.x, self.y]
         end_point = [event.x, event.y]
 
-        self.line_img = df.draw_with_line_tool(start_point, end_point, self.active_color, current_canvas_img, self.default_state)
+        self.line_img = df.draw_with_line_tool(start_point, end_point, self.active_color, current_canvas_img, self.default_state, self.line_width)
         self.canvas.create_image(0, 0, anchor=NW, image=self.line_img)
 
     def on_button_release_line(self, event):
@@ -577,9 +589,6 @@ class App(dict):
         self.main_window.bind('<KeyRelease-Shift_L>', lambda event: self.on_key_release())
 
         self.active_tool = self.draw_line_tool
-
-    def draw_curve_tool(self):
-        pass
 
     def on_key_press(self):
         self.default_state = 1
@@ -617,7 +626,7 @@ class App(dict):
         top_left_point = (min(self.x, event.x), min(self.y, event.y))
         bottom_right_point = (max(self.x, event.x), max(self.y, event.y))
 
-        self.rectangle_img = df.draw_with_rectangle_tool(top_left_point, bottom_right_point, self.active_color, current_canvas_img, self.default_state)
+        self.rectangle_img = df.draw_with_rectangle_tool(top_left_point, bottom_right_point, self.active_color, current_canvas_img, self.default_state, self.line_width)
         self.canvas.create_image(0, 0, anchor=NW, image=self.rectangle_img)        
 
     def on_button_rectangle_motion(self, event):
@@ -645,7 +654,7 @@ class App(dict):
         top_left_point = (min(self.x, event.x), min(self.y, event.y))
         bottom_right_point = (max(self.x, event.x), max(self.y, event.y))
 
-        self.rhomb_img = df.draw_with_rhomb_tool(top_left_point, bottom_right_point, self.active_color, current_canvas_img, self.default_state)
+        self.rhomb_img = df.draw_with_rhomb_tool(top_left_point, bottom_right_point, self.active_color, current_canvas_img, self.default_state, self.line_width)
         self.canvas.create_image(0, 0, anchor=NW, image=self.rhomb_img)
 
     def on_button_rhomb_motion(self, event):
@@ -673,7 +682,7 @@ class App(dict):
         top_left_point = (min(self.x, event.x), min(self.y, event.y))
         bottom_right_point = (max(self.x, event.x), max(self.y, event.y))
 
-        self.star_img = df.draw_with_star_tool(top_left_point, bottom_right_point, self.active_color, current_canvas_img, self.default_state)
+        self.star_img = df.draw_with_star_tool(top_left_point, bottom_right_point, self.active_color, current_canvas_img, self.default_state, self.line_width)
         self.canvas.create_image(0, 0, anchor=NW, image=self.star_img)        
 
     def on_button_star_motion(self, event):
@@ -707,7 +716,7 @@ class App(dict):
 
         cursor_position = (event.x, event.y)
 
-        self.curve_img = df.draw_with_curve_tool(self.curve_points[0], cursor_position, self.curve_points[1], self.active_color, current_canvas_img)
+        self.curve_img = df.draw_with_curve_tool(self.curve_points[0], cursor_position, self.curve_points[1], self.active_color, current_canvas_img, self.line_width)
         self.canvas.create_image(0, 0, anchor=NW, image=self.curve_img)        
 
     def on_button_curve_motion(self, event):
@@ -737,7 +746,7 @@ class App(dict):
         top_left_point = (min(self.x, event.x), min(self.y, event.y))
         bottom_right_point = (max(self.x, event.x), max(self.y, event.y))
 
-        self.arrow_right_img = df.draw_with_arrow_right_tool(top_left_point, bottom_right_point, self.active_color, current_canvas_img, self.default_state)
+        self.arrow_right_img = df.draw_with_arrow_right_tool(top_left_point, bottom_right_point, self.active_color, current_canvas_img, self.default_state, self.line_width)
         self.canvas.create_image(0, 0, anchor=NW, image=self.arrow_right_img)        
 
     def on_button_arrow_right_motion(self, event):
@@ -773,7 +782,7 @@ class App(dict):
         top_left_point = (min(self.x, event.x), min(self.y, event.y))
         bottom_right_point = (max(self.x, event.x), max(self.y, event.y))
 
-        self.ellipse_img = df.draw_with_ellipse_tool(top_left_point, bottom_right_point, self.active_color, current_canvas_img, self.default_state)
+        self.ellipse_img = df.draw_with_ellipse_tool(top_left_point, bottom_right_point, self.active_color, current_canvas_img, self.default_state, self.line_width)
         self.canvas.create_image(0, 0, anchor=NW, image=self.ellipse_img)        
 
     def on_button_ellipse_motion(self, event):
@@ -788,7 +797,7 @@ class App(dict):
         previous_point = (self.x, self.y)
         current_point = (event.x, event.y)
 
-        self.pencil_img = df.draw_with_pencil_tool(previous_point, current_point, self.active_color, self.img)
+        self.pencil_img = df.draw_with_pencil_tool(previous_point, current_point, self.active_color, self.img, self.line_width)
         self.canvas.create_image(0, 0, anchor=NW, image=self.pencil_img)
 
         self.on_button_press(event)

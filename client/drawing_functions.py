@@ -3,36 +3,36 @@ from PIL import Image, ImageTk, ImageDraw
 from main import DARK_COLOR, WHITE_COLOR
 
 
-def draw_with_pencil_tool(previous_point, current_point, color, img):
+def draw_with_pencil_tool(previous_point, current_point, color, img, width):
     draw = ImageDraw.Draw(img)    
-    draw.line((previous_point, current_point), color)
+    draw.line((previous_point, previous_point, current_point, current_point), color, width, joint='curve')
 
     return ImageTk.PhotoImage(img)
 
 
-def draw_with_ellipse_tool(top_left_point, bottom_right_point, color, img, default_state):
+def draw_with_ellipse_tool(top_left_point, bottom_right_point, color, img, default_state, width):
     if default_state == 1:
         diameter = max(bottom_right_point[0] - top_left_point[0], bottom_right_point[1] - top_left_point[1])
         bottom_right_point = (top_left_point[0] + diameter, top_left_point[1] + diameter)
 
     draw = ImageDraw.Draw(img)    
-    draw.ellipse((top_left_point, bottom_right_point), outline=color)
+    draw.ellipse((top_left_point, bottom_right_point), outline=color, width=width)
 
     return ImageTk.PhotoImage(img)
 
 
-def draw_with_rectangle_tool(top_left_point, bottom_right_point, color, img, default_state):
+def draw_with_rectangle_tool(top_left_point, bottom_right_point, color, img, default_state, width):
     if default_state == 1:
         width = max(bottom_right_point[0] - top_left_point[0], bottom_right_point[1] - top_left_point[1])
         bottom_right_point = (top_left_point[0] + width, top_left_point[1] + width)
 
     draw = ImageDraw.Draw(img)  
-    draw.rectangle((top_left_point, bottom_right_point), outline=color)
+    draw.rectangle((top_left_point, bottom_right_point), outline=color, width=width)
 
     return ImageTk.PhotoImage(img)
 
 
-def draw_with_rhomb_tool(top_left_point, bottom_right_point, color, img, default_state):
+def draw_with_rhomb_tool(top_left_point, bottom_right_point, color, img, default_state, width):
     if default_state == 1:
         width = max(bottom_right_point[0] - top_left_point[0], bottom_right_point[1] - top_left_point[1])
         bottom_right_point = (top_left_point[0] + width, top_left_point[1] + width)
@@ -44,13 +44,12 @@ def draw_with_rhomb_tool(top_left_point, bottom_right_point, color, img, default
         (top_left_point[0], int((bottom_right_point[1] + top_left_point[1])/2))
     ]
 
-    draw = ImageDraw.Draw(img)
-    draw.polygon(rhomb_angles, outline=color)
+    img = draw_polygon(rhomb_angles, color, width, img)
 
     return ImageTk.PhotoImage(img)
 
 
-def draw_with_star_tool(top_left_point, bottom_right_point, color, img, default_state):
+def draw_with_star_tool(top_left_point, bottom_right_point, color, img, default_state, width):
     if default_state == 1:
         width = max(bottom_right_point[0] - top_left_point[0], bottom_right_point[1] - top_left_point[1])
         bottom_right_point = (top_left_point[0] + width, top_left_point[1] + width)
@@ -73,13 +72,12 @@ def draw_with_star_tool(top_left_point, bottom_right_point, color, img, default_
         (int(top_left_point[0] + 1.25*b), int(top_left_point[1] + a/2))
     ]
 
-    draw = ImageDraw.Draw(img)
-    draw.polygon(star_angles, outline=color)
+    img = draw_polygon(star_angles, color, width, img)
 
     return ImageTk.PhotoImage(img)
 
 
-def draw_with_arrow_right_tool(top_left_point, bottom_right_point, color, img, default_state):
+def draw_with_arrow_right_tool(top_left_point, bottom_right_point, color, img, default_state, width):
     if default_state == 1:
         width = max(bottom_right_point[0] - top_left_point[0], bottom_right_point[1] - top_left_point[1])
         bottom_right_point = (top_left_point[0] + width, top_left_point[1] + width)
@@ -97,8 +95,7 @@ def draw_with_arrow_right_tool(top_left_point, bottom_right_point, color, img, d
         (int(top_left_point[0]), int(3*a/2 + top_left_point[1]))
     ]
 
-    draw = ImageDraw.Draw(img)
-    draw.polygon(arrow_right_angles, outline=color)
+    img = draw_polygon(arrow_right_angles, color, width, img)
 
     return ImageTk.PhotoImage(img)
 
@@ -114,7 +111,7 @@ def erase_rectangle(current_point, color, img):
     return ImageTk.PhotoImage(img)
 
 
-def draw_with_line_tool(start_point, end_point, color, img, default_state):
+def draw_with_line_tool(start_point, end_point, color, img, default_state, width):
     if default_state == 1:
         if abs(end_point[0] - start_point[0]) >= abs(end_point[1] - start_point[1]):
             end_point[1] = start_point[1]
@@ -122,7 +119,7 @@ def draw_with_line_tool(start_point, end_point, color, img, default_state):
             end_point[0] = start_point[0]
 
     draw = ImageDraw.Draw(img)    
-    draw.line(start_point + end_point, color)
+    draw.line(start_point + end_point, color, width)
 
     return ImageTk.PhotoImage(img)
 
@@ -226,12 +223,28 @@ def draw_moving(selected_area, cursor_position, background_color, img):
     return ImageTk.PhotoImage(img)
 
 
-def draw_with_curve_tool(start_point, cursor_position, end_point, color, img):
+def draw_with_curve_tool(start_point, cursor_position, end_point, color, img, width):
     t = 0
+    previous_point = None
+    draw = ImageDraw.Draw(img)
     while t < 1:
         x = int(start_point[0] * (1-t)**2 + 2*(1-t)*t*cursor_position[0] + end_point[0] * t**2)
         y = int(start_point[1] * (1-t)**2 + 2*(1-t)*t*cursor_position[1] + end_point[1] * t**2)
-        img.putpixel((x,y), color)
         t = t + 0.001
 
+        if previous_point is not None:
+            draw.line([previous_point, previous_point, (x, y), (x, y)], color, width, joint='curve')
+        previous_point = (x, y)
+
     return ImageTk.PhotoImage(img)
+
+
+def draw_polygon(polygon_angles, color, width, img):
+    draw = ImageDraw.Draw(img)
+
+    polygon_angles.append(polygon_angles[0])
+    polygon_angles.append(polygon_angles[1])
+
+    draw.line(polygon_angles, color, width, joint='curve')
+
+    return img
