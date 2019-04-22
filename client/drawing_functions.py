@@ -7,7 +7,7 @@ def draw_with_pencil_tool(previous_point, current_point, color, img, width):
     draw = ImageDraw.Draw(img)    
     draw.line((previous_point, previous_point, current_point, current_point), color, width, joint='curve')
 
-    return ImageTk.PhotoImage(img)
+    return img
 
 
 def draw_with_ellipse_tool(top_left_point, bottom_right_point, color, img, default_state, width):
@@ -18,7 +18,7 @@ def draw_with_ellipse_tool(top_left_point, bottom_right_point, color, img, defau
     draw = ImageDraw.Draw(img)    
     draw.ellipse((top_left_point, bottom_right_point), outline=color, width=width)
 
-    return ImageTk.PhotoImage(img)
+    return img
 
 
 def draw_with_rectangle_tool(top_left_point, bottom_right_point, color, img, default_state, width):
@@ -29,7 +29,7 @@ def draw_with_rectangle_tool(top_left_point, bottom_right_point, color, img, def
     draw = ImageDraw.Draw(img)  
     draw.rectangle((top_left_point, bottom_right_point), outline=color, width=width)
 
-    return ImageTk.PhotoImage(img)
+    return img
 
 
 def draw_with_rhomb_tool(top_left_point, bottom_right_point, color, img, default_state, width):
@@ -46,7 +46,7 @@ def draw_with_rhomb_tool(top_left_point, bottom_right_point, color, img, default
 
     img = draw_polygon(rhomb_angles, color, width, img)
 
-    return ImageTk.PhotoImage(img)
+    return img
 
 
 def draw_with_star_tool(top_left_point, bottom_right_point, color, img, default_state, width):
@@ -74,7 +74,7 @@ def draw_with_star_tool(top_left_point, bottom_right_point, color, img, default_
 
     img = draw_polygon(star_angles, color, width, img)
 
-    return ImageTk.PhotoImage(img)
+    return img
 
 
 def draw_with_arrow_right_tool(top_left_point, bottom_right_point, color, img, default_state, width):
@@ -97,7 +97,7 @@ def draw_with_arrow_right_tool(top_left_point, bottom_right_point, color, img, d
 
     img = draw_polygon(arrow_right_angles, color, width, img)
 
-    return ImageTk.PhotoImage(img)
+    return img
 
 
 def erase_rectangle(current_point, color, img):
@@ -108,7 +108,7 @@ def erase_rectangle(current_point, color, img):
     
     draw.rectangle((top_left_point, bottom_right_point), fill=color)
 
-    return ImageTk.PhotoImage(img)
+    return img
 
 
 def draw_with_line_tool(start_point, end_point, color, img, default_state, width):
@@ -121,13 +121,13 @@ def draw_with_line_tool(start_point, end_point, color, img, default_state, width
     draw = ImageDraw.Draw(img)    
     draw.line(start_point + end_point, color, width)
 
-    return ImageTk.PhotoImage(img)
+    return img
 
 
 def fill_color(point, color, img):
     draw = ImageDraw.floodfill(img, point, color)
 
-    return ImageTk.PhotoImage(img)
+    return img
 
 
 def draw_scaling(selected_area, cursor_position, background_color, img):
@@ -143,7 +143,7 @@ def draw_scaling(selected_area, cursor_position, background_color, img):
 
     img.paste(scaled_img, (selected_area[0], selected_area[1]))
 
-    return ImageTk.PhotoImage(img)
+    return img
 
 
 def erase_selected_area(top_left_point, bottom_right_point, background_color, img):
@@ -190,7 +190,7 @@ def draw_rotating(selected_area, cursor_position, background_color, img):
 
         img.putpixel((x, y), pixel[1])
 
-    return ImageTk.PhotoImage(img)
+    return img
 
 
 def draw_flip_horizontal(selected_area, background_color, img):
@@ -199,7 +199,7 @@ def draw_flip_horizontal(selected_area, background_color, img):
 
     img.paste(flipped_img, (selected_area[0], selected_area[1]))
 
-    return ImageTk.PhotoImage(img)
+    return img
 
 
 def draw_flip_vertical(selected_area, background_color, img):
@@ -208,7 +208,7 @@ def draw_flip_vertical(selected_area, background_color, img):
 
     img.paste(flipped_img, (selected_area[0], selected_area[1]))
 
-    return ImageTk.PhotoImage(img)
+    return img
 
 
 def draw_moving(selected_area, cursor_position, background_color, img):
@@ -220,7 +220,7 @@ def draw_moving(selected_area, cursor_position, background_color, img):
 
     img.paste(selected_img, cursor_position)
 
-    return ImageTk.PhotoImage(img)
+    return img
 
 
 def draw_with_curve_tool(start_point, cursor_position, end_point, color, img, width):
@@ -236,7 +236,7 @@ def draw_with_curve_tool(start_point, cursor_position, end_point, color, img, wi
             draw.line([previous_point, previous_point, (x, y), (x, y)], color, width, joint='curve')
         previous_point = (x, y)
 
-    return ImageTk.PhotoImage(img)
+    return img
 
 
 def draw_polygon(polygon_angles, color, width, img):
