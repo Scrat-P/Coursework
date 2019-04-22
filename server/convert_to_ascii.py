@@ -3,13 +3,14 @@ from colour import Color
 import numpy as np
 
 
-INPUT_FILE = "picture.png"
+INPUT_FILE = "/Users/didred/Documents/БГУИР/ОСиС/Coursework/server/picture.png"
 OUTPUT_FILE = "results.png"
-SC = 0.1
-GCF = 1.3 
+SC = 1
+GCF = 1.3
+make_color = lambda : (randint(50, 255), randint(50, 255), randint(50,255))
 
 def convert():
-    img = Image.open(INPUT_FILE)
+    rgb_img = Image.open(INPUT_FILE)
     chars = np.asarray(list(' .,:irs?@9B&#'))
 
     font = ImageFont.load_default()
@@ -18,35 +19,36 @@ def convert():
 
     WCF = letter_height / letter_width
 
-    width_by_letter = round(img.size[0] * SC * WCF)
-    height_by_letter = round(img.size[1] * SC)
+    width_by_letter = round(rgb_img.size[0] * SC * WCF)
+    height_by_letter = round(rgb_img.size[1] * SC)
     size = (width_by_letter, height_by_letter)
 
-    img = img.resize(size)
+    rgb_img = rgb_img.resize(size)
 
-    img = np.sum(np.asarray(img), axis = 2)
+    img = np.sum(np.asarray(rgb_img), axis = 2)
+    rgb_img = np.asarray(rgb_img)
 
     img -= img.min()
     img = (1.0 - img / img.max()) ** GCF * (chars.size - 1)
 
     lines = ("\n".join( ("".join(r) for r in chars[img.astype(int)]) )).split("\n")
 
-    nbins = len(lines)
-    color_range = list(Color("black").range_to(Color("black"), nbins))
-
     new_img_width= letter_width * width_by_letter
     new_img_height = letter_height * height_by_letter
-    new_img = Image.new("RGBA", (new_img_width, new_img_height), "white")
-    draw = ImageDraw.Draw(new_img)
+    image = Image.new("RGB", (new_img_width, new_img_height), "white")
+    draw = ImageDraw.Draw(image)
 
-    left_padding = 0
-    color = color_range[0]
-    y = 0
-    for line in lines:
-        draw.text((left_padding, y), line, color.hex, font=font)
-        y += letter_height
+    y_draw = 0
+    for i in range(len(lines)):
+        line = lines[i]
+        x_draw = 0
+        for j in range(len(line)):
+            c = line[j]
+            x_full, y_full = draw.textsize(c)
+            draw.text((x_draw, y_draw), c, (rgb_img[i][j][0], rgb_img[i][j][1], rgb_img[i][j][2]))
+            x_draw += x_full
+        y_draw += y_full
 
-    new_img.save(OUTPUT_FILE)
-
+    image.save(OUTPUT_FILE)
 
 convert()
