@@ -1,4 +1,5 @@
 import socket
+from converter import Converter
 
 
 TCP_IP = "127.0.0.1"
@@ -19,8 +20,8 @@ class Recipient:
         from PIL import Image
 
         image = Image.frombytes("RGB", (width, height), img)
-        with open(fname + ".png", "wb") as file:
-            image.save(file)
+
+        return Converter(image).convert()
 
     def receive_images(self):
         while True:
@@ -34,8 +35,7 @@ class Recipient:
                     width, height = str(size, "utf-8").split(":")
                     width, height = int(width), int(height)
 
-                    self.call_save_as_image(fname, img, width, height)
-                    img = b''
+                    return self.call_save_as_image(fname, img, width, height)
                 else:
                     img += temp[0]
 

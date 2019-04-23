@@ -6,6 +6,7 @@ from tkinter import filedialog
 from PIL import Image, ImageTk
 from sender import Sender
 import drawing_functions as df
+from threading import Thread
 
 
 APP_TITLE = 'Online Paint'
@@ -167,7 +168,7 @@ BUTTONS_DESCRIPTION = {
 }
 
 
-class App(dict):
+class ClientApp(dict):
     def __init__(self, main_window):
         self.main_window = main_window
         self.main_window.title(APP_TITLE)
@@ -203,6 +204,9 @@ class App(dict):
         if len(self.image_storage) >= 30:
             self.image_storage = self.image_storage[-29:]
         self.image_storage.append(copy.copy(img))
+
+        ascii_listener = Thread(target=self.send_canvas_to_server)
+        ascii_listener.start()
 
     def _init_canvas(self):
         self.canvas = Canvas(self.main_window, bg=self.background_color)
@@ -875,5 +879,5 @@ if __name__ == '__main__':
     main_window.style = ttk.Style()
     main_window.style.theme_use('clam')
 
-    app = App(main_window)
+    app = ClientApp(main_window)
     main_window.mainloop()

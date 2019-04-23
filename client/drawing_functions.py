@@ -130,7 +130,7 @@ def fill_color(point, color, img):
     return img
 
 
-def draw_scaling(selected_area, cursor_position, background_color, img):
+def draw_scalealealealealing(selected_area, cursor_position, background_color, img):
     selected_img = img.crop(selected_area)
 
     top_left_point = (selected_area[0], selected_area[1])
