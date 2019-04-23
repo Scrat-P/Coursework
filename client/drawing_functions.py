@@ -100,13 +100,10 @@ def draw_with_arrow_right_tool(top_left_point, bottom_right_point, color, img, d
     return img
 
 
-def erase_rectangle(current_point, color, img):
-    draw = ImageDraw.Draw(img)    
-
-    bottom_right_point = (current_point[0] + 5, current_point[1] + 5)
-    top_left_point = (current_point[0] - 5, current_point[1] - 5)
+def erase_line(previous_point, current_point, color, img):
+    draw = ImageDraw.Draw(img)
     
-    draw.rectangle((top_left_point, bottom_right_point), fill=color)
+    draw.line((previous_point, current_point), color, width=10)
 
     return img
 

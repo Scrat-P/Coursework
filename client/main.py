@@ -608,14 +608,14 @@ class ClientApp(dict):
         self.active_tool = self.draw_eraser_tool
 
     def on_button_eraser(self, event):
+        previous_point = (self.x, self.y)
         current_point = (event.x, event.y)
 
-        self.eraser_img = df.erase_rectangle(current_point, self.background_color, self.img)
+        self.eraser_img = df.erase_line(previous_point, current_point, self.background_color, self.img)
         self.canvas.img = ImageTk.PhotoImage(self.eraser_img)
         self.canvas.create_image(0, 0, anchor=NW, image=self.canvas.img)
 
-        self.x = event.x
-        self.y = event.y
+        self.on_button_press(event)
 
     def _on_button_line(self, event, current_canvas_img):
         start_point = [self.x, self.y]
