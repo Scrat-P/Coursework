@@ -3,14 +3,12 @@ from colour import Color
 import numpy as np
 
 
-INPUT_FILE = "/Users/didred/Documents/БГУИР/ОСиС/Coursework/server/picture.png"
-OUTPUT_FILE = "results.png"
 SCALE = 0.1
 CONTRAST = 0.3
 
+
 class Converter():
     def __init__(self, image):
-        self.output_file = OUTPUT_FILE
         self.scale = SCALE
         self.contrast = CONTRAST
         self.rgb_img = image

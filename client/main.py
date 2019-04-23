@@ -193,6 +193,7 @@ class ClientApp(dict):
 
         self.active_color = RED_COLOR
         self.active_color_button = self['red_btn']
+        self._activate_button('active_color_button', 'red_btn')
 
         self.active_tool_button = self['pencil_btn']
         self.default_state = 0
@@ -222,13 +223,13 @@ class ClientApp(dict):
 
         self.canvas.bind('<Configure>', self.configure)
 
-    def rollback_operation(self, event):
+    def rollback_operation(self, event=None):
         self.canvas.img = ImageTk.PhotoImage(self.img)
         self.canvas.create_image(0, 0, anchor=NW, image=self.canvas.img)
 
         self.active_tool()
 
-    def undo_canvas(self, event):
+    def undo_canvas(self, event=None):
         if len(self.image_storage) < 2:
             return
 
@@ -257,9 +258,15 @@ class ClientApp(dict):
         file_menu = Menu(menubar, tearoff=0)
         menubar.add_cascade(label='File', menu=file_menu)
         file_menu.add_command(label='New', command=self.call_new_canvas)
-        file_menu.add_command(label='Open', command=self.call_open_image)
+        file_menu.add_command(label='Open...', command=self.call_open_image)
         file_menu.add_command(label='Save as...', command=self.call_save_as_image)
+        file_menu.add_separator()
         file_menu.add_command(label='Exit', command=self.frame.quit)
+
+        edit_menu = Menu(menubar, tearoff=0)
+        menubar.add_cascade(label='Edit', menu=edit_menu)
+        edit_menu.add_command(label=f'Rollback tool (esc)', command=self.rollback_operation)
+        edit_menu.add_command(label=f'Undo (q)', command=self.undo_canvas)
 
         menubar.add_command(label='About')
 
