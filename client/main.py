@@ -75,7 +75,7 @@ BUTTONS_DESCRIPTION = {
     'description': 'Select a region, then click and drag the object.'
   },  
   'flip_vertical_tool_btn': {
-    'title': 'Flip Vertical',
+    'title': 'Flip vertical',
     'description': 'Select a region, then click.'
   },
   'flip_horizontal_tool_btn': {
@@ -200,13 +200,15 @@ class ClientApp(dict):
         self.active_tool = self.draw_pencil_tool
         self.active_tool()
 
+    def run_sending_thread(self):
+        Thread(target=self.send_canvas_to_server).start()
+
     def add_image_to_storage(self, img):
         if len(self.image_storage) >= 30:
             self.image_storage = self.image_storage[-29:]
         self.image_storage.append(copy.copy(img))
 
-        ascii_listener = Thread(target=self.send_canvas_to_server)
-        ascii_listener.start()
+        self.run_sending_thread()
 
     def _init_canvas(self):
         self.canvas = Canvas(self.main_window, bg=self.background_color)
@@ -235,6 +237,8 @@ class ClientApp(dict):
         self.canvas.create_image(0, 0, anchor=NW, image=self.canvas.img)
 
         self.image_storage = self.image_storage[:-1]
+
+        self.run_sending_thread()
         self.active_tool()
 
     def configure(self, event):
@@ -332,8 +336,6 @@ class ClientApp(dict):
                 tool_event = f'draw_{tool_name}_tool'
 
             self._create_button(self.drawbar, self[f'{tool_name}_img'], f'{tool_name}_btn', getattr(self, tool_event))
-
-        self._create_button(self.drawbar, self['eraser_img'], 'send_btn', self.send_canvas_to_server)
 
         self.description_label = Label(self.drawbar, text='', width=40)
         self.description_label.pack(side=TOP, fill=X)
