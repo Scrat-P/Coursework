@@ -13,7 +13,6 @@ class Converter():
         self.contrast = CONTRAST
         self.rgb_img = image
 
-
     def convert(self):
         chars = np.asarray(list(' .,:irs?@9B&#'))
 

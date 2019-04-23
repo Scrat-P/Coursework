@@ -3,6 +3,7 @@ import copy
 from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog
+from tkinter import messagebox
 from PIL import Image, ImageTk
 from sender import Sender
 import drawing_functions as df
@@ -268,9 +269,12 @@ class ClientApp(dict):
         edit_menu.add_command(label=f'Rollback tool (esc)', command=self.rollback_operation)
         edit_menu.add_command(label=f'Undo (q)', command=self.undo_canvas)
 
-        menubar.add_command(label='About')
+        menubar.add_command(label='About', command=self.show_about_app)
 
         self.main_window.config(menu=menubar)
+
+    def show_about_app(self):
+        messagebox.showinfo("About app", "Network graphic ASCII-art editor\n© 2019 Baranovich & Yurevich")
 
     def call_save_as_image(self):
         file_name = filedialog.asksaveasfilename(defaultextension='.png')
