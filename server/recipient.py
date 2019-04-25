@@ -21,18 +21,29 @@ class Recipient:
     def call_save_as_image(self, img, width, height, scale, contrast):
         image = Image.frombytes("RGB", (width, height), img)
 
-        return Converter(image, scale, contrast).convert().resize((width, height), Image.LANCZOS)
+        return (Converter(image, scale, contrast)
+                .convert()
+                .resize((width, height), Image.LANCZOS))
 
     def receive_images(self, scale, contrast):
         img = b''
         while True:
             temp = self.client_socket.recvfrom(65520)
-            self.client_socket.sendto(bytearray("message", "utf-8"), (self.tcp_ip, self.tcp_port))
-            if temp[0] and temp[0][0] == 197 and temp[0][1] == 147 and temp[0][2] == 197 and temp[0][3] == 147 and temp[0][4] == 197 and temp[0][5] == 147:
+            self.client_socket.sendto(bytearray("message", "utf-8"),
+                                      (self.tcp_ip, self.tcp_port))
+
+            condition = (
+                all([temp[0][even] == 197 for even in range(0, 6, 2)]) and
+                all([temp[0][odd] == 147 for odd in range(1, 6, 2)])
+            )
+
+            if temp[0] and condition:
                 size = temp[0][6:]
                 width, height = str(size, "utf-8").split(":")
                 width, height = int(width), int(height)
 
-                return self.call_save_as_image(img, width, height, scale, contrast)
+                return self.call_save_as_image(
+                    img, width, height, scale, contrast
+                )
             else:
                 img += temp[0]

@@ -1,5 +1,4 @@
 from PIL import Image, ImageDraw, ImageFont
-from colour import Color
 import numpy as np
 
 
@@ -28,7 +27,7 @@ class Converter():
 
         rgb_img = self.rgb_img.resize(size)
 
-        img = np.sum(np.asarray(rgb_img), axis = 2)
+        img = np.sum(np.asarray(rgb_img), axis=2)
         rgb_img = np.asarray(rgb_img)
 
         img -= img.min()
@@ -39,25 +38,31 @@ class Converter():
         image = Image.new("RGB", (new_img_width, new_img_height), "white")
         draw = ImageDraw.Draw(image)
 
-        if (np.isnan(np.asarray(img)[0][0])):
+        if np.isnan(np.asarray(img)[0][0]):
             image_lines = []
             for i in range(len(img.astype(int))):
                 line = []
                 for j in range(len(img.astype(int)[i])):
                     line.append(12)
                 image_lines.append(line)
-            lines = ("\n".join(("".join(r) for r in chars[image_lines]))).split("\n")
+            lines = ("\n".join(
+                ("".join(r) for r in chars[image_lines]))
+            ).split("\n")
         else:
-            lines = ("\n".join(("".join(r) for r in chars[img.astype(int)]))).split("\n")
+            lines = ("\n".join(
+                ("".join(r) for r in chars[img.astype(int)]))
+            ).split("\n")
 
-        y_draw = 0
         for i in range(len(lines)):
             line = lines[i]
-            x_draw = 0
+            x_draw, y_draw = 0, 0
             for j in range(len(line)):
                 c = line[j]
                 x_full, y_full = draw.textsize(c)
-                draw.text((x_draw, y_draw), c, (rgb_img[i][j][0], rgb_img[i][j][1], rgb_img[i][j][2]))
+                draw.text(
+                    (x_draw, y_draw), c,
+                    (rgb_img[i][j][0], rgb_img[i][j][1], rgb_img[i][j][2])
+                )
                 x_draw += x_full
             y_draw += y_full
 

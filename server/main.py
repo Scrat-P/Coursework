@@ -1,4 +1,3 @@
-import sys
 from tkinter import *
 from tkinter import ttk
 from tkinter import messagebox
@@ -11,9 +10,12 @@ APP_TITLE = 'Online ASCII-art'
 BACKGROUND_COLOR = 'white'
 IMG_INITIAL_WIDTH = 1200
 IMG_INITIAL_HEIGHT = 800
+ABOUT_TITLE = "About app"
+ABOUT_MESSAGE = ("Network graphic ASCII-art editor\n"
+                 "© 2019 Baranovich & Yurevich")
 
 
-class ServerApp():
+class ServerApp:
     def __init__(self, main_window):
         self.main_window = main_window
         self.main_window.title(APP_TITLE)
@@ -41,13 +43,14 @@ class ServerApp():
         self.main_window.config(menu=menubar)
 
     def show_about_app(self):
-        messagebox.showinfo("About app", "Network graphic ASCII-art editor\n© 2019 Baranovich & Yurevich")
+        messagebox.showinfo(ABOUT_TITLE, ABOUT_MESSAGE)
 
     def _init_canvas(self):
         self.canvas = Canvas(self.main_window, bg=self.background_color)
         self.canvas.pack(expand=1, fill=BOTH)
 
-        self.img = Image.new('RGB', [self.img_width, self.img_height], self.background_color)
+        self.img = Image.new('RGB', [self.img_width, self.img_height],
+                             self.background_color)
 
         self.canvas.img = ImageTk.PhotoImage(self.img)
         self.canvas.create_image(0, 0, anchor=NW, image=self.canvas.img)
@@ -59,7 +62,8 @@ class ServerApp():
         self.img_width = event.width
         self.img_height = event.height
 
-        self.img = self.img.resize((self.img_width, self.img_height), Image.LANCZOS)
+        self.img.resize((self.img_width, self.img_height),
+                        Image.LANCZOS)
 
         self.canvas.img = ImageTk.PhotoImage(self.img)
         self.canvas.create_image(0, 0, anchor=NW, image=self.canvas.img)
@@ -68,7 +72,7 @@ class ServerApp():
         recipient = Recipient()
 
         while True:
-            self.img = recipient.receive_images(self.scale, self.contrast)
+            recipient.receive_images(self.scale, self.contrast)
 
             self.canvas.img = ImageTk.PhotoImage(self.img)
             self.canvas.create_image(0, 0, anchor=NW, image=self.canvas.img)
@@ -79,14 +83,24 @@ class ServerApp():
         self.setingsbar.pack(side=BOTTOM, fill=X)
 
         self.scale = 0.1
-        self.width_scale = Scale(self.setingsbar, orient=HORIZONTAL, from_=0.1, to=1, sliderlength=15, showvalue=0, resolution=0.05, command=self.change_scale)
+        self.width_scale = Scale(
+            self.setingsbar, orient=HORIZONTAL,
+            from_=0.1, to=1, sliderlength=15,
+            showvalue=0, resolution=0.05,
+            command=self.change_scale
+        )
         self.width_scale.pack(side=RIGHT)
 
         self.scale_label = Label(self.setingsbar, text='Scale:   0.1 ',)
         self.scale_label.pack(side=RIGHT)
 
         self.contrast = 0.1
-        self.width_contrast = Scale(self.setingsbar, orient=HORIZONTAL, from_=0.1, to=3, sliderlength=15, showvalue=0, resolution=0.1, command=self.change_contrast)
+        self.width_contrast = Scale(
+            self.setingsbar, orient=HORIZONTAL,
+            from_=0.1, to=3, sliderlength=15,
+            showvalue=0, resolution=0.1,
+            command=self.change_contrast
+        )
         self.width_contrast.pack(side=RIGHT)
 
         self.contrast_label = Label(self.setingsbar, text='Contrast:   0.1 ',)
