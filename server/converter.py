@@ -53,9 +53,10 @@ class Converter():
                 ("".join(r) for r in chars[img.astype(int)]))
             ).split("\n")
 
+        y_draw = 0
         for i in range(len(lines)):
             line = lines[i]
-            x_draw, y_draw = 0, 0
+            x_draw, y_full = 0, 0
             for j in range(len(line)):
                 c = line[j]
                 x_full, y_full = draw.textsize(c)

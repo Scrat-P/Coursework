@@ -72,7 +72,7 @@ class ServerApp:
         recipient = Recipient()
 
         while True:
-            recipient.receive_images(self.scale, self.contrast)
+            self.img = recipient.receive_images(self.scale, self.contrast)
 
             self.canvas.img = ImageTk.PhotoImage(self.img)
             self.canvas.create_image(0, 0, anchor=NW, image=self.canvas.img)

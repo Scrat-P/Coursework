@@ -4,6 +4,7 @@ from tkinter import *
 from tkinter import ttk
 from tkinter import filedialog
 from tkinter import messagebox
+from tkcolorpicker import askcolor
 from PIL import Image, ImageTk
 from sender import Sender
 import drawing_functions as df
@@ -316,6 +317,8 @@ class ClientApp(dict):
         for color_name, _ in COLOR_BUTTONS:
             self._create_button_image(f'{color_name}_img', (COLOR_BUTTONS_WIDTH, COLOR_BUTTONS_HEIGHT))
 
+        self._create_button_image('palette_img', (COLOR_BUTTONS_WIDTH, COLOR_BUTTONS_HEIGHT))
+
         for tool_name in TOOL_BUTTONS:
             self._create_button_image(f'{tool_name}_img', (TOOL_BUTTONS_WIDTH, TOOL_BUTTONS_HEIGHT))
         
@@ -359,6 +362,7 @@ class ClientApp(dict):
         for color_name, color_rgb in COLOR_BUTTONS:
             self._create_button(self.color_toolbar, self[f'{color_name}_img'], f'{color_name}_btn', (lambda x=color_rgb, y=f'{color_name}_btn': self.on_change_color(x, y)))
 
+        self._create_button(self.color_toolbar, self['palette_img'], 'palette_btn', lambda: self.on_palette_click())
         self.color_toolbar.pack(side=BOTTOM, fill=X)
 
         self.line_width = 1
@@ -367,6 +371,11 @@ class ClientApp(dict):
 
         self.line_width_label = Label(self.color_toolbar, text='Line width:   1 ',)
         self.line_width_label.pack(side=RIGHT)
+
+    def on_palette_click(self):
+        self._activate_button('active_color_button', 'palette_btn')
+
+        self.active_color = askcolor(GREEN_COLOR, self.main_window)[0]
 
     def change_line_width(self, new_width):
         self.line_width = int(new_width)
