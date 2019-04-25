@@ -3,14 +3,14 @@ from colour import Color
 import numpy as np
 
 
-SCALE = 0.1
+SCALE = 1
 CONTRAST = 0.3
 
 
 class Converter():
-    def __init__(self, image):
-        self.scale = SCALE
-        self.contrast = CONTRAST
+    def __init__(self, image, scale, contrast):
+        self.scale = scale
+        self.contrast = contrast
         self.rgb_img = image
 
     def convert(self):

@@ -127,7 +127,7 @@ def fill_color(point, color, img):
     return img
 
 
-def draw_scalealealealealing(selected_area, cursor_position, background_color, img):
+def draw_scaling(selected_area, cursor_position, background_color, img):
     selected_img = img.crop(selected_area)
 
     top_left_point = (selected_area[0], selected_area[1])
@@ -136,7 +136,7 @@ def draw_scalealealealealing(selected_area, cursor_position, background_color, i
 
     scaled_img_width = abs(cursor_position[0] - selected_area[0])
     scaled_img_heigth = abs(cursor_position[1] - selected_area[1])
-    scaled_img = selected_img.resize((scaled_img_width, scaled_img_heigth))
+    scaled_img = selected_img.resize((scaled_img_width, scaled_img_heigth), Image.LANCZOS)
 
     img.paste(scaled_img, (selected_area[0], selected_area[1]))
 

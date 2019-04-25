@@ -1,4 +1,5 @@
 import socket
+import time
 
 TCP_IP = "127.0.0.1"
 TCP_PORT = 5001
@@ -27,4 +28,5 @@ class Sender:
                 self.client_socket.recvfrom(1000)
 
                 break
+
             self.client_socket.recvfrom(1000)

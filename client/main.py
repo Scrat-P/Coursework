@@ -234,7 +234,7 @@ class ClientApp(dict):
         if len(self.image_storage) < 2:
             return
 
-        self.img = self.image_storage[-2].resize((self.img_width, self.img_height))
+        self.img = self.image_storage[-2].resize((self.img_width, self.img_height), Image.LANCZOS)
         self.canvas.img = ImageTk.PhotoImage(self.img)
         self.canvas.create_image(0, 0, anchor=NW, image=self.canvas.img)
 
@@ -248,7 +248,7 @@ class ClientApp(dict):
         self.img_width = event.width
         self.img_height = event.height
 
-        self.img = self.img.resize((self.img_width, self.img_height))
+        self.img = self.img.resize((self.img_width, self.img_height), Image.LANCZOS)
 
         self.canvas.img = ImageTk.PhotoImage(self.img)
         self.canvas.create_image(0, 0, anchor=NW, image=self.canvas.img)
@@ -301,7 +301,7 @@ class ClientApp(dict):
         if file_name is not None:
             self.canvas.delete('all')
 
-            self.img = Image.open(file_name).resize((self.img_width, self.img_height))
+            self.img = Image.open(file_name).resize((self.img_width, self.img_height), Image.LANCZOS)
             self.add_image_to_storage(self.img)
 
             self.canvas.img = ImageTk.PhotoImage(self.img)
@@ -309,7 +309,7 @@ class ClientApp(dict):
 
     def _create_button_image(self, img, size):
         image_path = os.path.join(IMAGES_FOLDER_PATH, f'{img}.png')
-        img_obj = Image.open(image_path).resize(size, Image.ANTIALIAS)
+        img_obj = Image.open(image_path).resize(size, Image.LANCZOS)
         self[img] = ImageTk.PhotoImage(img_obj)
 
     def _init_icon_toolbar(self):
@@ -361,7 +361,7 @@ class ClientApp(dict):
 
         self.color_toolbar.pack(side=BOTTOM, fill=X)
 
-        self.line_width = 0
+        self.line_width = 1
         self.width_scale = Scale(self.color_toolbar, orient=HORIZONTAL, from_=1, to=15, sliderlength=15, showvalue=0, command=self.change_line_width)
         self.width_scale.pack(side=RIGHT)
 
@@ -437,7 +437,6 @@ class ClientApp(dict):
 
     def on_button_move_motion(self, event):
         current_canvas_img = copy.copy(self.img)
-        self.img = self._on_button_move(event, current_canvas_img)
         self._on_button_move(event, current_canvas_img)
 
     def draw_rotate_tool(self):
