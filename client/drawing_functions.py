@@ -5,25 +5,42 @@ from main import DARK_COLOR, WHITE_COLOR
 
 def draw_with_pencil_tool(previous_point, current_point, color, img, width):
     draw = ImageDraw.Draw(img)    
-    draw.line((previous_point, previous_point, current_point, current_point), color, width, joint='curve')
+    draw.line(
+        (previous_point, previous_point, current_point, current_point), 
+        color, width, joint='curve'
+    )
 
     return img
 
 
-def draw_with_ellipse_tool(top_left_point, bottom_right_point, color, img, default_state, width):
+def draw_with_ellipse_tool(
+        top_left_point, bottom_right_point, 
+        color, img, default_state, width):
     if default_state == 1:
-        diameter = max(bottom_right_point[0] - top_left_point[0], bottom_right_point[1] - top_left_point[1])
-        bottom_right_point = (top_left_point[0] + diameter, top_left_point[1] + diameter)
+        diameter = max(
+            bottom_right_point[0] - top_left_point[0], 
+            bottom_right_point[1] - top_left_point[1]
+        )
+        bottom_right_point = (
+            top_left_point[0] + diameter, 
+            top_left_point[1] + diameter
+        )
 
     draw = ImageDraw.Draw(img)    
-    draw.ellipse((top_left_point, bottom_right_point), outline=color, width=width)
+    draw.ellipse((top_left_point, bottom_right_point), 
+        outline=color, width=width)
 
     return img
 
 
-def draw_with_rectangle_tool(top_left_point, bottom_right_point, color, img, default_state, width):
+def draw_with_rectangle_tool(
+        top_left_point, bottom_right_point, 
+        color, img, default_state, width):
     if default_state == 1:
-        width = max(bottom_right_point[0] - top_left_point[0], bottom_right_point[1] - top_left_point[1])
+        width = max(
+            bottom_right_point[0] - top_left_point[0], 
+            bottom_right_point[1] - top_left_point[1]
+        )
         bottom_right_point = (top_left_point[0] + width, top_left_point[1] + width)
 
     draw = ImageDraw.Draw(img)  
@@ -32,9 +49,14 @@ def draw_with_rectangle_tool(top_left_point, bottom_right_point, color, img, def
     return img
 
 
-def draw_with_rhomb_tool(top_left_point, bottom_right_point, color, img, default_state, width):
+def draw_with_rhomb_tool(
+        top_left_point, bottom_right_point, 
+        color, img, default_state, width):
     if default_state == 1:
-        width = max(bottom_right_point[0] - top_left_point[0], bottom_right_point[1] - top_left_point[1])
+        width = max(
+            bottom_right_point[0] - top_left_point[0], 
+            bottom_right_point[1] - top_left_point[1]
+        )
         bottom_right_point = (top_left_point[0] + width, top_left_point[1] + width)
 
     rhomb_angles = [
@@ -49,9 +71,14 @@ def draw_with_rhomb_tool(top_left_point, bottom_right_point, color, img, default
     return img
 
 
-def draw_with_star_tool(top_left_point, bottom_right_point, color, img, default_state, width):
+def draw_with_star_tool(
+        top_left_point, bottom_right_point, 
+        color, img, default_state, width):
     if default_state == 1:
-        width = max(bottom_right_point[0] - top_left_point[0], bottom_right_point[1] - top_left_point[1])
+        width = max(
+            bottom_right_point[0] - top_left_point[0], 
+            bottom_right_point[1] - top_left_point[1]
+        )
         bottom_right_point = (top_left_point[0] + width, top_left_point[1] + width)
 
     a = (bottom_right_point[1] - top_left_point[1])/2.
@@ -77,9 +104,14 @@ def draw_with_star_tool(top_left_point, bottom_right_point, color, img, default_
     return img
 
 
-def draw_with_arrow_right_tool(top_left_point, bottom_right_point, color, img, default_state, width):
+def draw_with_arrow_right_tool(
+        top_left_point, bottom_right_point, 
+        color, img, default_state, width):
     if default_state == 1:
-        width = max(bottom_right_point[0] - top_left_point[0], bottom_right_point[1] - top_left_point[1])
+        width = max(
+            bottom_right_point[0] - top_left_point[0], 
+            bottom_right_point[1] - top_left_point[1]
+        )
         bottom_right_point = (top_left_point[0] + width, top_left_point[1] + width)
 
     a = (bottom_right_point[1] - top_left_point[1])/2.
@@ -108,7 +140,9 @@ def erase_line(previous_point, current_point, color, img):
     return img
 
 
-def draw_with_line_tool(start_point, end_point, color, img, default_state, width):
+def draw_with_line_tool(
+        start_point, end_point, color, 
+        img, default_state, width):
     if default_state == 1:
         if abs(end_point[0] - start_point[0]) >= abs(end_point[1] - start_point[1]):
             end_point[1] = start_point[1]
@@ -127,23 +161,29 @@ def fill_color(point, color, img):
     return img
 
 
-def draw_scaling(selected_area, cursor_position, background_color, img):
+def draw_scaling(
+        selected_area, cursor_position, 
+        background_color, img):
     selected_img = img.crop(selected_area)
 
     top_left_point = (selected_area[0], selected_area[1])
     bottom_right_point = (selected_area[2], selected_area[3])
-    img = erase_selected_area(top_left_point, bottom_right_point, background_color, img)
+    img = erase_selected_area(top_left_point, 
+        bottom_right_point, background_color, img)
 
     scaled_img_width = abs(cursor_position[0] - selected_area[0])
     scaled_img_heigth = abs(cursor_position[1] - selected_area[1])
-    scaled_img = selected_img.resize((scaled_img_width, scaled_img_heigth), Image.LANCZOS)
+    scaled_img = selected_img.resize(
+        (scaled_img_width, scaled_img_heigth), Image.LANCZOS)
 
     img.paste(scaled_img, (selected_area[0], selected_area[1]))
 
     return img
 
 
-def erase_selected_area(top_left_point, bottom_right_point, background_color, img):
+def erase_selected_area(
+        top_left_point, bottom_right_point, 
+        background_color, img):
     draw = ImageDraw.Draw(img)
     draw.rectangle((top_left_point, bottom_right_point), fill=WHITE_COLOR)
 
@@ -155,7 +195,8 @@ def get_pixel_list(selected_area, selected_img):
     selected_area_width = selected_area[2] - selected_area[0]
     for i in range(selected_area[1], selected_area[3]):
         for j in range(selected_area[0], selected_area[2]):
-            color = selected_img[(i - selected_area[1]) * selected_area_width + (j - selected_area[0])]
+            color = selected_img[(i - selected_area[1]) * 
+                selected_area_width + (j - selected_area[0])]
             pixel_list.append(((j, i), color))
 
     return pixel_list
@@ -168,7 +209,10 @@ def draw_rotating(selected_area, cursor_position, background_color, img):
 
     top_left_point = (selected_area[0], selected_area[1])
     bottom_right_point = (selected_area[2] - 1, selected_area[3] - 1)
-    img = erase_selected_area(top_left_point, bottom_right_point, background_color, img)
+    img = erase_selected_area(
+        top_left_point, bottom_right_point, 
+        background_color, img
+    )
 
     top_x, top_y = bottom_right_point
     bottom_x, bottom_y = cursor_position
@@ -182,8 +226,10 @@ def draw_rotating(selected_area, cursor_position, background_color, img):
     for i in range(0, len(pixel_list) - 1):
         pixel = pixel_list[i]
 
-        x = center_x + int(math.cos(alpha)*(pixel[0][0] - center_x) - math.sin(alpha)*(pixel[0][1] - center_y))
-        y = center_y + int(math.sin(alpha)*(pixel[0][0] - center_x) + math.cos(alpha)*(pixel[0][1] - center_y))
+        x = (center_x + int(math.cos(alpha)*(pixel[0][0] - center_x) -
+                math.sin(alpha)*(pixel[0][1] - center_y)))
+        y = (center_y + int(math.sin(alpha)*(pixel[0][0] - center_x) +
+                math.cos(alpha)*(pixel[0][1] - center_y)))
 
         img.putpixel((x, y), pixel[1])
 
@@ -213,24 +259,32 @@ def draw_moving(selected_area, cursor_position, background_color, img):
 
     top_left_point = (selected_area[0], selected_area[1])
     bottom_right_point = (selected_area[2] - 1, selected_area[3] - 1)
-    img = erase_selected_area(top_left_point, bottom_right_point, background_color, img)
+    img = erase_selected_area(
+        top_left_point, bottom_right_point, 
+        background_color, img)
 
     img.paste(selected_img, cursor_position)
 
     return img
 
 
-def draw_with_curve_tool(start_point, cursor_position, end_point, color, img, width):
+def draw_with_curve_tool(
+        start_point, cursor_position, 
+        end_point, color, img, width):
     t = 0
     previous_point = None
     draw = ImageDraw.Draw(img)
     while t < 1:
-        x = int(start_point[0] * (1-t)**2 + 2*(1-t)*t*cursor_position[0] + end_point[0] * t**2)
-        y = int(start_point[1] * (1-t)**2 + 2*(1-t)*t*cursor_position[1] + end_point[1] * t**2)
+        x = int(start_point[0] * (1-t)**2 + 
+                2*(1-t)*t*cursor_position[0] + end_point[0] * t**2)
+        y = int(start_point[1] * (1-t)**2 + 
+                2*(1-t)*t*cursor_position[1] + end_point[1] * t**2)
         t = t + 0.001
 
         if previous_point is not None:
-            draw.line([previous_point, previous_point, (x, y), (x, y)], color, width, joint='curve')
+            draw.line(
+                [previous_point, previous_point, (x, y), (x, y)], 
+                color, width, joint='curve')
         previous_point = (x, y)
 
     return img
