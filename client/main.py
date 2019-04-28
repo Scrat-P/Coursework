@@ -13,7 +13,7 @@ from threading import Thread
 
 ACTIVE_THEME = 'clam'
 APP_TITLE = 'Online Paint'
-IMAGES_FOLDER_PATH = 'images'
+IMAGES_FOLDER_PATH = '/Users/didred/Documents/БГУИР/ОСиС/Coursework/client/images'
 BACKGROUND_COLOR = 'white'
 IMG_INITIAL_WIDTH = 1200
 IMG_INITIAL_HEIGHT = 800

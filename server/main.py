@@ -17,6 +17,8 @@ ABOUT_MESSAGE = ("Network graphic ASCII-art editor\n"
 
 class ServerApp:
     def __init__(self, main_window):
+        self.recipient = Recipient()
+
         self.main_window = main_window
         self.main_window.title(APP_TITLE)
         self.frame = Frame(self.main_window)
@@ -29,7 +31,7 @@ class ServerApp:
         self._init_menubar()
         self._init_setingsbar()
 
-        Thread(target=self.show_ascii).start()
+        Thread(target=self.receive_images).start()
 
     def _init_menubar(self):
         menubar = Menu(self.main_window)
@@ -69,13 +71,22 @@ class ServerApp:
         self.canvas.create_image(0, 0, anchor=NW, image=self.canvas.img)
 
     def show_ascii(self):
-        recipient = Recipient()
+        self.canvas.img = ImageTk.PhotoImage(self.img)
+        self.canvas.create_image(0, 0, anchor=NW, image=self.canvas.img)
 
+    def receive_images(self):
         while True:
-            self.img = recipient.receive_images(self.scale, self.contrast)
+            self.img = self.recipient.receive_images(self.scale, self.contrast)
 
-            self.canvas.img = ImageTk.PhotoImage(self.img)
-            self.canvas.create_image(0, 0, anchor=NW, image=self.canvas.img)
+            self.show_ascii()
+
+    def change_image(self):
+        self.img = self.recipient.change_image(self.scale, self.contrast)
+
+        self.show_ascii()
+
+    def updateValue(self, event):
+        print(self.width_scale.get())
 
     def _init_setingsbar(self):
         self.setingsbar = Frame(self.main_window, borderwidth=0, relief=RAISED)
@@ -89,6 +100,7 @@ class ServerApp:
             showvalue=0, resolution=0.05,
             command=self.change_scale
         )
+        self.width_scale.bind("<ButtonRelease-1>", self.updateValue)
         self.width_scale.pack(side=RIGHT)
 
         self.scale_label = Label(self.setingsbar, text='Scale:   0.1 ',)
@@ -110,9 +122,13 @@ class ServerApp:
         self.scale = float(new_scale)
         self.scale_label.configure(text=f'Scale:  {new_scale:>1} ')
 
+        self.change_image()
+
     def change_contrast(self, new_contrast):
         self.contrast = float(new_contrast)
         self.contrast_label.configure(text=f'Contrast:  {new_contrast:>1} ')
+
+        self.change_image()
 
 
 if __name__ == '__main__':
