@@ -37,11 +37,11 @@ def draw_with_rectangle_tool(
         top_left_point, bottom_right_point, 
         color, img, default_state, width):
     if default_state == 1:
-        width = max(
+        square_width = max(
             bottom_right_point[0] - top_left_point[0], 
             bottom_right_point[1] - top_left_point[1]
         )
-        bottom_right_point = (top_left_point[0] + width, top_left_point[1] + width)
+        bottom_right_point = (top_left_point[0] + square_width, top_left_point[1] + square_width)
 
     draw = ImageDraw.Draw(img)  
     draw.rectangle((top_left_point, bottom_right_point), outline=color, width=width)
@@ -53,11 +53,11 @@ def draw_with_rhomb_tool(
         top_left_point, bottom_right_point, 
         color, img, default_state, width):
     if default_state == 1:
-        width = max(
+        square_width = max(
             bottom_right_point[0] - top_left_point[0], 
             bottom_right_point[1] - top_left_point[1]
         )
-        bottom_right_point = (top_left_point[0] + width, top_left_point[1] + width)
+        bottom_right_point = (top_left_point[0] + square_width, top_left_point[1] + square_width)
 
     rhomb_angles = [
         (int((bottom_right_point[0] + top_left_point[0])/2), top_left_point[1]),
@@ -75,11 +75,11 @@ def draw_with_star_tool(
         top_left_point, bottom_right_point, 
         color, img, default_state, width):
     if default_state == 1:
-        width = max(
+        square_width = max(
             bottom_right_point[0] - top_left_point[0], 
             bottom_right_point[1] - top_left_point[1]
         )
-        bottom_right_point = (top_left_point[0] + width, top_left_point[1] + width)
+        bottom_right_point = (top_left_point[0] + square_width, top_left_point[1] + square_width)
 
     a = (bottom_right_point[1] - top_left_point[1])/2.
     b = (bottom_right_point[0] - top_left_point[0])/2.    
@@ -108,11 +108,11 @@ def draw_with_arrow_right_tool(
         top_left_point, bottom_right_point, 
         color, img, default_state, width):
     if default_state == 1:
-        width = max(
+        square_width = max(
             bottom_right_point[0] - top_left_point[0], 
             bottom_right_point[1] - top_left_point[1]
         )
-        bottom_right_point = (top_left_point[0] + width, top_left_point[1] + width)
+        bottom_right_point = (top_left_point[0] + square_width, top_left_point[1] + square_width)
 
     a = (bottom_right_point[1] - top_left_point[1])/2.
     b = (bottom_right_point[0] - top_left_point[0])/2.    

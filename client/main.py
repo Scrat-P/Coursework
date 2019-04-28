@@ -29,9 +29,9 @@ BLUE_LIGHT_COLOR = (0, 153, 204)
 BLUE_MALIBU_COLOR = (102, 204, 255)
 PURPLE_COLOR = (102, 0, 204)
 
-MOUSE_CLICK_ACTION = '<ButtonPress-1>'
-MOUSE_MOTION_ACTION = '<B1-Motion>'
-MOUSE_RELEASE_ACTION = '<ButtonRelease-1>'
+MOUSE_CLICK_ACTION_NAME = '<ButtonPress-1>'
+MOUSE_MOTION_ACTION_NAME = '<B1-Motion>'
+MOUSE_RELEASE_ACTION_NAME = '<ButtonRelease-1>'
 SHIFT_PRESS = '<KeyPress-Shift_L>'
 SHIFT_RELEASE = '<KeyRelease-Shift_L>'
 
@@ -225,6 +225,17 @@ BUTTONS_DESCRIPTION = {
 class ClientApp(dict):
     def __init__(self, main_window):
         self.main_window = main_window
+
+        self._init_app_settings()
+        self._init_icon_toolbar()
+        self._init_drawbar()
+        self._init_canvas()
+        self._init_menubar()
+        self._init_color_picker()
+        self._init_main_hotkeys()
+        self._init_tool_buttons()
+
+    def _init_app_settings(self):
         self.main_window.title(APP_TITLE)
         self.frame = Frame(self.main_window)
         self.image_storage = []
@@ -236,24 +247,25 @@ class ClientApp(dict):
         self.background_color = BACKGROUND_COLOR
         self.pixel_list = None
 
-        self._init_icon_toolbar()
-        self._init_drawbar()
-        self._init_canvas()
-        self._init_menubar()
-        self._init_color_picker()
-
-        self.main_window.bind('<KeyPress-Escape>', self.rollback_operation)
-        self.main_window.bind('<q>', self.undo_canvas)
-
+    def _init_tool_buttons(self):
         self.active_color = RED_COLOR
         self.active_color_button = self[INITIAL_COLOR_BUTTON]
         self._activate_button(ACTIVE_COLOR_BUTTON, INITIAL_COLOR_BUTTON)
 
         self.active_tool_button = self[INITIAL_TOOL_BUTTON]
-        self.default_state = 0
 
         self.active_tool = self.draw_pencil_tool
         self.active_tool()
+
+    def _init_main_hotkeys(self):
+        self.main_window.bind('<KeyPress-Escape>', self.rollback_operation)
+        self.main_window.bind('<q>', self.undo_canvas)
+
+        self.main_window.bind(
+            SHIFT_PRESS, lambda event: self.on_key_press())
+        self.main_window.bind(
+            SHIFT_RELEASE, lambda event: self.on_key_release())
+        self.default_state = 0
 
     def run_sending_thread(self):
         Thread(target=self.send_canvas_to_server).start()
@@ -275,14 +287,12 @@ class ClientApp(dict):
         )
         self.add_image_to_storage(self.img)
 
-        self.canvas.img = ImageTk.PhotoImage(self.img)
-        self.canvas.create_image(0, 0, anchor=NW, image=self.canvas.img)
+        self._show_image_on_canvas(self.img)
 
         self.canvas.bind('<Configure>', self.configure)
 
     def rollback_operation(self, event=None):
-        self.canvas.img = ImageTk.PhotoImage(self.img)
-        self.canvas.create_image(0, 0, anchor=NW, image=self.canvas.img)
+        self._show_image_on_canvas(self.img)
 
         self.active_tool()
 
@@ -292,8 +302,7 @@ class ClientApp(dict):
 
         self.img = self.image_storage[-2].resize(
             (self.img_width, self.img_height), Image.LANCZOS)
-        self.canvas.img = ImageTk.PhotoImage(self.img)
-        self.canvas.create_image(0, 0, anchor=NW, image=self.canvas.img)
+        self._show_image_on_canvas(self.img)
 
         self.image_storage = self.image_storage[:-1]
 
@@ -308,8 +317,7 @@ class ClientApp(dict):
         self.img = self.img.resize(
             (self.img_width, self.img_height), Image.LANCZOS)
 
-        self.canvas.img = ImageTk.PhotoImage(self.img)
-        self.canvas.create_image(0, 0, anchor=NW, image=self.canvas.img)
+        self._show_image_on_canvas(self.img)
 
     def _init_menubar(self):
         menubar = Menu(self.main_window)
@@ -355,8 +363,7 @@ class ClientApp(dict):
         )
         self.add_image_to_storage(self.img)
 
-        self.canvas.img = ImageTk.PhotoImage(self.img)
-        self.canvas.create_image(0, 0, anchor=NW, image=self.canvas.img)
+        self._show_image_on_canvas(self.img)
 
     def call_open_image(self):
         file_name = filedialog.askopenfilename(filetypes=OPEN_FILETYPES)
@@ -368,8 +375,7 @@ class ClientApp(dict):
                 (self.img_width, self.img_height), Image.LANCZOS)
             self.add_image_to_storage(self.img)
 
-            self.canvas.img = ImageTk.PhotoImage(self.img)
-            self.canvas.create_image(0, 0, anchor=NW, image=self.canvas.img)
+            self._show_image_on_canvas(self.img)
 
     def _create_button_image(self, img, size):
         image_path = os.path.join(IMAGES_FOLDER_PATH, f'{img}.png')
@@ -477,19 +483,30 @@ class ClientApp(dict):
         setattr(self, button_attr, self[new_button_name])
         getattr(self, button_attr).config(relief=SUNKEN)
 
-    def _unbind_buttons(self):
-        self.canvas.unbind(MOUSE_CLICK_ACTION)
-        self.canvas.unbind(MOUSE_MOTION_ACTION)
-        self.canvas.unbind(MOUSE_RELEASE_ACTION)
+    def _unbind_mouse_actions(self):
+        self.canvas.unbind(MOUSE_CLICK_ACTION_NAME)
+        self.canvas.unbind(MOUSE_MOTION_ACTION_NAME)
+        self.canvas.unbind(MOUSE_RELEASE_ACTION_NAME)
+
+    def _bind_mouse_actions(
+            self, release_action, 
+            motion_action, click_action=None):
+        if click_action is not None:
+            self.canvas.bind(MOUSE_CLICK_ACTION_NAME, click_action)
+        else:
+            self.canvas.bind(MOUSE_CLICK_ACTION_NAME, self.on_button_press)
+
+        self.canvas.bind(MOUSE_MOTION_ACTION_NAME, motion_action)
+        self.canvas.bind(MOUSE_RELEASE_ACTION_NAME, release_action)
 
     def draw_pencil_tool(self):
         self._activate_button(ACTIVE_TOOL_BUTTON, f'{PENCIL_TOOL}_btn')
 
         self.canvas.config(cursor=PENCIL_CURSOR)
-        self.canvas.bind(MOUSE_CLICK_ACTION, self.on_button_press)
-        self.canvas.bind(MOUSE_MOTION_ACTION, self.on_button_draw_pencil)
-        self.canvas.bind(MOUSE_RELEASE_ACTION,
-         lambda event: self.add_image_to_storage(self.img))
+        self._bind_mouse_actions(
+            lambda event: self.add_image_to_storage(self.img),
+            self.on_button_draw_pencil
+        )
 
         self.active_tool = self.draw_pencil_tool
 
@@ -497,35 +514,27 @@ class ClientApp(dict):
         self._activate_button(ACTIVE_TOOL_BUTTON, f'{MOVE_TOOL}_btn')
 
         self.canvas.config(cursor=CROSSHAIR_CURSOR)
-        self.canvas.bind(MOUSE_CLICK_ACTION, self.on_button_press)
-        self.canvas.bind(MOUSE_MOTION_ACTION, 
-            self.on_button_selected_area_motion)
-        self.canvas.bind(MOUSE_RELEASE_ACTION, 
-            self.on_button_release_move_selected_area)    
-
-        self.main_window.bind(SHIFT_PRESS, lambda event: self.on_key_press())
-        self.main_window.bind(SHIFT_RELEASE, 
-            lambda event: self.on_key_release())
+        self._bind_mouse_actions(
+            self.on_button_release_move_selected_area,
+            self.on_button_selected_area_motion
+        )
 
         self.active_tool = self.draw_move_tool
 
     def on_button_release_move_selected_area(self, event):
-        self.selected_area = (
-            min(self.x, event.x), min(self.y, event.y),
-            max(self.x, event.x), max(self.y, event.y)
-        )
-        self.default_state = 0
+        self._create_selected_area(event)
 
         self.canvas.config(cursor=CROSSHAIR_CURSOR)
-        self.canvas.bind(MOUSE_MOTION_ACTION, self.on_button_move_motion)
-        self.canvas.bind(MOUSE_RELEASE_ACTION, self.on_button_release_move)
+        self._bind_mouse_actions(
+            self.on_button_release_move,
+            self.on_button_move_motion
+        )
 
     def _on_button_move(self, event, current_canvas_img):
         cursor_position = (event.x, event.y)
         self.moved_img = df.draw_moving(self.selected_area, cursor_position, 
             self.background_color, current_canvas_img)
-        self.canvas.img = ImageTk.PhotoImage(self.moved_img)
-        self.canvas.create_image(0, 0, anchor=NW, image=self.canvas.img)
+        self._show_image_on_canvas(self.moved_img)
 
     def on_button_release_move(self, event):
         self._on_button_move(event, self.img)
@@ -542,28 +551,21 @@ class ClientApp(dict):
         self._activate_button(ACTIVE_TOOL_BUTTON, f'{ROTATE_TOOL}_btn')
 
         self.canvas.config(cursor=CROSSHAIR_CURSOR)
-        self.canvas.bind(MOUSE_CLICK_ACTION, self.on_button_press)
-        self.canvas.bind(MOUSE_MOTION_ACTION, 
-            self.on_button_selected_area_motion)
-        self.canvas.bind(MOUSE_RELEASE_ACTION, 
-            self.on_button_release_rotate_selected_area)
-
-        self.main_window.bind(SHIFT_PRESS, lambda event: self.on_key_press())
-        self.main_window.bind(SHIFT_RELEASE, 
-            lambda event: self.on_key_release())
+        self._bind_mouse_actions(
+            self.on_button_release_rotate_selected_area,
+            self.on_button_selected_area_motion
+        )
 
         self.active_tool = self.draw_rotate_tool
 
     def on_button_release_rotate_selected_area(self, event):
-        self.selected_area = (
-            min(self.x, event.x), min(self.y, event.y),
-            max(self.x, event.x), max(self.y, event.y)
-        )
-        self.default_state = 0
+        self._create_selected_area(event)
 
         self.canvas.config(cursor=CROSSHAIR_CURSOR)
-        self.canvas.bind(MOUSE_MOTION_ACTION, self.on_button_rotate_motion)
-        self.canvas.bind(MOUSE_RELEASE_ACTION, self.on_button_release_rotate)
+        self._bind_mouse_actions(
+            self.on_button_release_rotate,
+            self.on_button_rotate_motion
+        )
 
     def _on_button_rotate(self, event, current_canvas_img):
         cursor_position = (event.x, event.y)
@@ -571,8 +573,7 @@ class ClientApp(dict):
             self.selected_area, cursor_position, 
             self.background_color, current_canvas_img
         )
-        self.canvas.img = ImageTk.PhotoImage(self.rotated_img)
-        self.canvas.create_image(0, 0, anchor=NW, image=self.canvas.img)
+        self._show_image_on_canvas(self.rotated_img)
 
     def on_button_release_rotate(self, event):
         self._on_button_rotate(event, self.img)
@@ -585,51 +586,47 @@ class ClientApp(dict):
         current_canvas_img = copy.copy(self.img)
         self._on_button_rotate(event, current_canvas_img)
 
+    def _get_rectangle_angles(self, event):
+        return (
+            (min(self.x, event.x), min(self.y, event.y)),
+            (max(self.x, event.x), max(self.y, event.y))   
+        )
+
     def on_button_selected_area_motion(self, event):
-        top_left_point = (min(self.x, event.x), min(self.y, event.y))
-        bottom_right_point = (max(self.x, event.x), max(self.y, event.y))   
+        top_left_point, bottom_right_point = self._get_rectangle_angles(event)
 
         current_canvas_img = copy.copy(self.img)
         self.selected_img = df.draw_with_rectangle_tool(
             top_left_point, bottom_right_point, 
-            DARK_COLOR, current_canvas_img, self.default_state, 1
+            DARK_COLOR, current_canvas_img, 0, 1
         )
-        self.canvas.img = ImageTk.PhotoImage(self.selected_img)
-        self.canvas.create_image(0, 0, anchor=NW, image=self.canvas.img)
+        self._show_image_on_canvas(self.selected_img)
 
     def draw_scale_tool(self):
         self._activate_button(ACTIVE_TOOL_BUTTON, f'{SCALE_TOOL}_btn')
 
         self.canvas.config(cursor=CROSSHAIR_CURSOR)
-        self.canvas.bind(MOUSE_CLICK_ACTION, self.on_button_press)
-        self.canvas.bind(MOUSE_MOTION_ACTION, 
-            self.on_button_selected_area_motion)
-        self.canvas.bind(MOUSE_RELEASE_ACTION, 
-            self.on_button_release_scale_selected_area)    
-
-        self.main_window.bind(SHIFT_PRESS, lambda event: self.on_key_press())
-        self.main_window.bind(SHIFT_RELEASE, 
-            lambda event: self.on_key_release())
+        self._bind_mouse_actions(
+            self.on_button_release_scale_selected_area,
+            self.on_button_selected_area_motion
+        )
 
         self.active_tool = self.draw_scale_tool
 
     def on_button_release_scale_selected_area(self, event):
-        self.selected_area = (
-            min(self.x, event.x), min(self.y, event.y),
-            max(self.x, event.x), max(self.y, event.y)
-        )
-        self.default_state = 0
+        self._create_selected_area(event)
 
         self.canvas.config(cursor=CROSSHAIR_CURSOR)
-        self.canvas.bind(MOUSE_MOTION_ACTION, self.on_button_scale_motion)
-        self.canvas.bind(MOUSE_RELEASE_ACTION, self.on_button_release_scale)
+        self._bind_mouse_actions(
+            self.on_button_release_scale,
+            self.on_button_scale_motion
+        )
 
     def _on_button_scale(self, event, current_canvas_img):
         cursor_position = (event.x, event.y)
         self.scaled_img = df.draw_scaling(self.selected_area, 
             cursor_position, self.background_color, current_canvas_img)
-        self.canvas.img = ImageTk.PhotoImage(self.scaled_img)
-        self.canvas.create_image(0, 0, anchor=NW, image=self.canvas.img)
+        self._show_image_on_canvas(self.scaled_img)
 
     def on_button_release_scale(self, event):
         self._on_button_scale(event, self.img)
@@ -646,34 +643,31 @@ class ClientApp(dict):
         self._activate_button(ACTIVE_TOOL_BUTTON, f'{FLIP_VERTICAL_TOOL}_btn')
 
         self.canvas.config(cursor=CROSSHAIR_CURSOR)
-        self.canvas.bind(MOUSE_CLICK_ACTION, self.on_button_press)
-        self.canvas.bind(MOUSE_MOTION_ACTION, 
-            self.on_button_selected_area_motion)
-        self.canvas.bind(MOUSE_RELEASE_ACTION, 
-            self.on_button_release_flip_vertical_selected_area)    
-
-        self.main_window.bind(SHIFT_PRESS, lambda event: self.on_key_press())
-        self.main_window.bind(SHIFT_RELEASE, 
-            lambda event: self.on_key_release())
+        self._bind_mouse_actions(
+            self.on_button_release_flip_vertical_selected_area,
+            self.on_button_selected_area_motion
+        )
 
         self.active_tool = self.draw_flip_vertical_tool
 
-    def on_button_release_flip_vertical_selected_area(self, event):
+    def _create_selected_area(self, event):
         self.selected_area = (
             min(self.x, event.x), min(self.y, event.y),
             max(self.x, event.x), max(self.y, event.y)
         )
         self.default_state = 0
 
-        self._unbind_buttons()
+    def on_button_release_flip_vertical_selected_area(self, event):
+        self._create_selected_area(event)
+
+        self._unbind_mouse_actions()
         self.canvas.config(cursor=ARROW_CURSOR)
-        self.canvas.bind(MOUSE_RELEASE_ACTION, self.on_button_flip_vertical)
+        self.canvas.bind(MOUSE_RELEASE_ACTION_NAME, self.on_button_flip_vertical)
 
     def on_button_flip_vertical(self, event):
         self.flipped_img = df.draw_flip_vertical(self.selected_area, 
             self.background_color, self.img)
-        self.canvas.img = ImageTk.PhotoImage(self.flipped_img)
-        self.canvas.create_image(0, 0, anchor=NW, image=self.canvas.img)
+        self._show_image_on_canvas(self.flipped_img)
         self.add_image_to_storage(self.flipped_img)
 
         self.default_state = 0
@@ -684,34 +678,24 @@ class ClientApp(dict):
             f'{FLIP_HORIZONTAL_TOOL}_btn')
 
         self.canvas.config(cursor=CROSSHAIR_CURSOR)
-        self.canvas.bind(MOUSE_CLICK_ACTION, self.on_button_press)
-        self.canvas.bind(MOUSE_MOTION_ACTION, 
-            self.on_button_selected_area_motion)
-        self.canvas.bind(MOUSE_RELEASE_ACTION, 
-            self.on_button_release_flip_horizontal_selected_area)    
-
-        self.main_window.bind(SHIFT_PRESS, lambda event: self.on_key_press())
-        self.main_window.bind(SHIFT_RELEASE, 
-            lambda event: self.on_key_release())
+        self._bind_mouse_actions(
+            self.on_button_release_flip_horizontal_selected_area,
+            self.on_button_selected_area_motion
+        )
 
         self.active_tool = self.draw_flip_horizontal_tool
 
     def on_button_release_flip_horizontal_selected_area(self, event):
-        self.selected_area = (
-            min(self.x, event.x), min(self.y, event.y),
-            max(self.x, event.x), max(self.y, event.y)
-        )
-        self.default_state = 0
+        self._create_selected_area(event)
 
-        self._unbind_buttons()
+        self._unbind_mouse_actions()
         self.canvas.config(cursor=ARROW_CURSOR)
-        self.canvas.bind(MOUSE_RELEASE_ACTION, self.on_button_flip_horizontal)
+        self.canvas.bind(MOUSE_RELEASE_ACTION_NAME, self.on_button_flip_horizontal)
 
     def on_button_flip_horizontal(self, event):
         self.flipped_img = df.draw_flip_horizontal(self.selected_area, 
             self.background_color, self.img)
-        self.canvas.img = ImageTk.PhotoImage(self.flipped_img)
-        self.canvas.create_image(0, 0, anchor=NW, image=self.canvas.img)
+        self._show_image_on_canvas(self.flipped_img)
         self.add_image_to_storage(self.flipped_img)
 
         self.default_state = 0
@@ -721,10 +705,10 @@ class ClientApp(dict):
         self._activate_button(ACTIVE_TOOL_BUTTON, f'{ERASER_TOOL}_btn')
 
         self.canvas.config(cursor=DOTBOX_CURSOR)
-        self.canvas.bind(MOUSE_CLICK_ACTION, self.on_button_press)
-        self.canvas.bind(MOUSE_MOTION_ACTION, self.on_button_eraser)
-        self.canvas.bind(MOUSE_RELEASE_ACTION, 
-            lambda event: self.add_image_to_storage(self.img)) 
+        self._bind_mouse_actions(
+            lambda event: self.add_image_to_storage(self.img),
+            self.on_button_eraser
+        )
 
         self.active_tool = self.draw_eraser_tool
 
@@ -734,8 +718,7 @@ class ClientApp(dict):
 
         self.eraser_img = df.erase_line(previous_point, 
             current_point, self.background_color, self.img)
-        self.canvas.img = ImageTk.PhotoImage(self.eraser_img)
-        self.canvas.create_image(0, 0, anchor=NW, image=self.canvas.img)
+        self._show_image_on_canvas(self.eraser_img)
 
         self.on_button_press(event)
 
@@ -747,8 +730,7 @@ class ClientApp(dict):
             start_point, end_point, self.active_color, 
             current_canvas_img, self.default_state, self.line_width
         )
-        self.canvas.img = ImageTk.PhotoImage(self.line_img)
-        self.canvas.create_image(0, 0, anchor=NW, image=self.canvas.img)
+        self._show_image_on_canvas(self.line_img)
 
     def on_button_release_line(self, event):
         self._on_button_line(event, self.img)
@@ -763,13 +745,10 @@ class ClientApp(dict):
         self._activate_button(ACTIVE_TOOL_BUTTON, f'{LINE_TOOL}_btn')
 
         self.canvas.config(cursor=CROSSHAIR_CURSOR)
-        self.canvas.bind(MOUSE_CLICK_ACTION, self.on_button_press)
-        self.canvas.bind(MOUSE_MOTION_ACTION, self.on_button_line_motion)
-        self.canvas.bind(MOUSE_RELEASE_ACTION, self.on_button_release_line)
-
-        self.main_window.bind(SHIFT_PRESS, lambda event: self.on_key_press())
-        self.main_window.bind(SHIFT_RELEASE, 
-            lambda event: self.on_key_release())
+        self._bind_mouse_actions(
+            self.on_button_release_line,
+            self.on_button_line_motion
+        )
 
         self.active_tool = self.draw_line_tool
 
@@ -779,17 +758,18 @@ class ClientApp(dict):
     def on_key_release(self):
         self.default_state = 0
 
+    def _show_image_on_canvas(self, img):
+        self.canvas.img = ImageTk.PhotoImage(img)
+        self.canvas.create_image(0, 0, anchor=NW, image=self.canvas.img) 
+
     def draw_ellipse_tool(self):
         self._activate_button(ACTIVE_TOOL_BUTTON, f'{ELLIPSE_TOOL}_btn')
 
         self.canvas.config(cursor=CIRCLE_CURSOR)
-        self.canvas.bind(MOUSE_CLICK_ACTION, self.on_button_press)
-        self.canvas.bind(MOUSE_MOTION_ACTION, self.on_button_ellipse_motion)
-        self.canvas.bind(MOUSE_RELEASE_ACTION, self.on_button_release_ellipse)
-
-        self.main_window.bind(SHIFT_PRESS, lambda event: self.on_key_press())
-        self.main_window.bind(SHIFT_RELEASE, 
-            lambda event: self.on_key_release())
+        self._bind_mouse_actions(
+            self.on_button_release_ellipse,
+            self.on_button_ellipse_motion
+        )
 
         self.active_tool = self.draw_ellipse_tool
 
@@ -797,27 +777,21 @@ class ClientApp(dict):
         self._activate_button(ACTIVE_TOOL_BUTTON, f'{RECTANGLE_TOOL}_btn')
 
         self.canvas.config(cursor=CROSSHAIR_CURSOR)
-        self.canvas.bind(MOUSE_CLICK_ACTION, self.on_button_press)
-        self.canvas.bind(MOUSE_MOTION_ACTION, self.on_button_rectangle_motion)
-        self.canvas.bind(MOUSE_RELEASE_ACTION, 
-            self.on_button_release_rectangle) 
-
-        self.main_window.bind(SHIFT_PRESS, lambda event: self.on_key_press())
-        self.main_window.bind(SHIFT_RELEASE, 
-            lambda event: self.on_key_release())
+        self._bind_mouse_actions(
+            self.on_button_release_rectangle,
+            self.on_button_rectangle_motion
+        )
 
         self.active_tool = self.draw_rectangle_tool
 
     def _on_button_rectangle(self, event, current_canvas_img):
-        top_left_point = (min(self.x, event.x), min(self.y, event.y))
-        bottom_right_point = (max(self.x, event.x), max(self.y, event.y))
+        top_left_point, bottom_right_point = self._get_rectangle_angles(event)
 
         self.rectangle_img = df.draw_with_rectangle_tool(
             top_left_point, bottom_right_point, self.active_color, 
             current_canvas_img, self.default_state, self.line_width
         )
-        self.canvas.img = ImageTk.PhotoImage(self.rectangle_img)
-        self.canvas.create_image(0, 0, anchor=NW, image=self.canvas.img)      
+        self._show_image_on_canvas(self.rectangle_img)   
 
     def on_button_rectangle_motion(self, event):
         current_canvas_img = copy.copy(self.img)
@@ -832,26 +806,21 @@ class ClientApp(dict):
         self._activate_button(ACTIVE_TOOL_BUTTON, f'{RHOMB_TOOL}_btn')
 
         self.canvas.config(cursor=CROSSHAIR_CURSOR)
-        self.canvas.bind(MOUSE_CLICK_ACTION, self.on_button_press)
-        self.canvas.bind(MOUSE_MOTION_ACTION, self.on_button_rhomb_motion)
-        self.canvas.bind(MOUSE_RELEASE_ACTION, self.on_button_release_rhomb) 
-
-        self.main_window.bind(SHIFT_PRESS, lambda event: self.on_key_press())
-        self.main_window.bind(SHIFT_RELEASE, 
-            lambda event: self.on_key_release())
+        self._bind_mouse_actions(
+            self.on_button_release_rhomb,
+            self.on_button_rhomb_motion
+        )
 
         self.active_tool = self.draw_rhomb_tool
 
     def _on_button_rhomb(self, event, current_canvas_img):
-        top_left_point = (min(self.x, event.x), min(self.y, event.y))
-        bottom_right_point = (max(self.x, event.x), max(self.y, event.y))
+        top_left_point, bottom_right_point = self._get_rectangle_angles(event)
 
         self.rhomb_img = df.draw_with_rhomb_tool(
             top_left_point, bottom_right_point, self.active_color, 
             current_canvas_img, self.default_state, self.line_width
         )
-        self.canvas.img = ImageTk.PhotoImage(self.rhomb_img)
-        self.canvas.create_image(0, 0, anchor=NW, image=self.canvas.img)
+        self._show_image_on_canvas(self.rhomb_img)
 
     def on_button_rhomb_motion(self, event):
         current_canvas_img = copy.copy(self.img)
@@ -866,26 +835,21 @@ class ClientApp(dict):
         self._activate_button(ACTIVE_TOOL_BUTTON, f'{STAR_TOOL}_btn')
 
         self.canvas.config(cursor=CROSSHAIR_CURSOR)
-        self.canvas.bind(MOUSE_CLICK_ACTION, self.on_button_press)
-        self.canvas.bind(MOUSE_MOTION_ACTION, self.on_button_star_motion)
-        self.canvas.bind(MOUSE_RELEASE_ACTION, self.on_button_release_star) 
-
-        self.main_window.bind(SHIFT_PRESS, lambda event: self.on_key_press())
-        self.main_window.bind(SHIFT_RELEASE, 
-            lambda event: self.on_key_release())
+        self._bind_mouse_actions(
+            self.on_button_release_star,
+            self.on_button_star_motion
+        )
 
         self.active_tool = self.draw_star_tool
 
     def _on_button_star(self, event, current_canvas_img):
-        top_left_point = (min(self.x, event.x), min(self.y, event.y))
-        bottom_right_point = (max(self.x, event.x), max(self.y, event.y))
+        top_left_point, bottom_right_point = self._get_rectangle_angles(event)
 
         self.star_img = df.draw_with_star_tool(
             top_left_point, bottom_right_point, self.active_color, 
             current_canvas_img, self.default_state, self.line_width
         )
-        self.canvas.img = ImageTk.PhotoImage(self.star_img)
-        self.canvas.create_image(0, 0, anchor=NW, image=self.canvas.img)   
+        self._show_image_on_canvas(self.star_img)
 
     def on_button_star_motion(self, event):
         current_canvas_img = copy.copy(self.img)
@@ -902,9 +866,11 @@ class ClientApp(dict):
         self.curve_points = []
 
         self.canvas.config(cursor=CROSSHAIR_CURSOR)
-        self.canvas.bind(MOUSE_CLICK_ACTION, self.add_curve_point)
-        self.canvas.bind(MOUSE_MOTION_ACTION, self.on_button_curve_motion)
-        self.canvas.bind(MOUSE_RELEASE_ACTION, self.on_button_release_curve) 
+        self._bind_mouse_actions(
+            self.on_button_release_curve,
+            self.on_button_curve_motion,
+            self.add_curve_point
+        )
 
         self.active_tool = self.draw_curve_tool
 
@@ -923,8 +889,7 @@ class ClientApp(dict):
             self.curve_points[0], cursor_position, self.curve_points[1], 
             self.active_color, current_canvas_img, self.line_width
         )
-        self.canvas.img = ImageTk.PhotoImage(self.curve_img)
-        self.canvas.create_image(0, 0, anchor=NW, image=self.canvas.img)       
+        self._show_image_on_canvas(self.curve_img)
 
     def on_button_curve_motion(self, event):
         current_canvas_img = copy.copy(self.img)
@@ -941,28 +906,21 @@ class ClientApp(dict):
         self._activate_button(ACTIVE_TOOL_BUTTON, f'{ARROW_RIGHT_TOOL}_btn')
 
         self.canvas.config(cursor=CROSSHAIR_CURSOR)
-        self.canvas.bind(MOUSE_CLICK_ACTION, self.on_button_press)
-        self.canvas.bind(MOUSE_MOTION_ACTION, 
-            self.on_button_arrow_right_motion)
-        self.canvas.bind(MOUSE_RELEASE_ACTION, 
-            self.on_button_release_arrow_right) 
-
-        self.main_window.bind(SHIFT_PRESS, lambda event: self.on_key_press())
-        self.main_window.bind(SHIFT_RELEASE, 
-            lambda event: self.on_key_release())
+        self._bind_mouse_actions(
+            self.on_button_release_arrow_right,
+            self.on_button_arrow_right_motion
+        )
 
         self.active_tool = self.draw_arrow_right_tool
 
     def _on_button_arrow_right(self, event, current_canvas_img):
-        top_left_point = (min(self.x, event.x), min(self.y, event.y))
-        bottom_right_point = (max(self.x, event.x), max(self.y, event.y))
+        top_left_point, bottom_right_point = self._get_rectangle_angles(event)
 
         self.arrow_right_img = df.draw_with_arrow_right_tool(
             top_left_point, bottom_right_point, self.active_color, 
             current_canvas_img, self.default_state, self.line_width
         )
-        self.canvas.img = ImageTk.PhotoImage(self.arrow_right_img)
-        self.canvas.create_image(0, 0, anchor=NW, image=self.canvas.img)      
+        self._show_image_on_canvas(self.arrow_right_img) 
 
     def on_button_arrow_right_motion(self, event):
         current_canvas_img = copy.copy(self.img)
@@ -978,18 +936,17 @@ class ClientApp(dict):
 
         self.filled_img = df.fill_color((event.x, event.y), 
             self.active_color, self.img)
-        self.canvas.img = ImageTk.PhotoImage(self.filled_img)
-        self.canvas.create_image(0, 0, anchor=NW, image=self.canvas.img)
+        self._show_image_on_canvas(self.filled_img)
         self.add_image_to_storage(self.filled_img)
 
         self.notbusy(SPRAYCAN_CURSOR)
 
     def draw_fill_tool(self):
-        self._unbind_buttons()
+        self._unbind_mouse_actions()
         self._activate_button(ACTIVE_TOOL_BUTTON, f'{FILL_TOOL}_btn')
 
         self.canvas.config(cursor=SPRAYCAN_CURSOR)
-        self.canvas.bind(MOUSE_CLICK_ACTION, self.on_button_fill)
+        self.canvas.bind(MOUSE_CLICK_ACTION_NAME, self.on_button_fill)
 
         self.active_tool = self.draw_fill_tool
 
@@ -998,15 +955,13 @@ class ClientApp(dict):
         self.y = event.y
 
     def _on_button_ellipse(self, event, current_canvas_img):
-        top_left_point = (min(self.x, event.x), min(self.y, event.y))
-        bottom_right_point = (max(self.x, event.x), max(self.y, event.y))
+        top_left_point, bottom_right_point = self._get_rectangle_angles(event)
 
         self.ellipse_img = df.draw_with_ellipse_tool(
             top_left_point, bottom_right_point, self.active_color, 
             current_canvas_img, self.default_state, self.line_width
         )
-        self.canvas.img = ImageTk.PhotoImage(self.ellipse_img)
-        self.canvas.create_image(0, 0, anchor=NW, image=self.canvas.img)
+        self._show_image_on_canvas(self.ellipse_img)
 
     def on_button_ellipse_motion(self, event):
         current_canvas_img = copy.copy(self.img)
@@ -1025,8 +980,7 @@ class ClientApp(dict):
             previous_point, current_point, self.active_color, 
             self.img, self.line_width
         )
-        self.canvas.img = ImageTk.PhotoImage(self.pencil_img)
-        self.canvas.create_image(0, 0, anchor=NW, image=self.canvas.img)
+        self._show_image_on_canvas(self.pencil_img)
 
         self.on_button_press(event)
 
