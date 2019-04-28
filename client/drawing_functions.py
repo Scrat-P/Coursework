@@ -33,18 +33,29 @@ def draw_with_ellipse_tool(
     return img
 
 
-def draw_with_rectangle_tool(
-        top_left_point, bottom_right_point, 
-        color, img, default_state, width):
+def correct_square_angles(top_left_point, bottom_right_point, default_state):
     if default_state == 1:
         square_width = max(
             bottom_right_point[0] - top_left_point[0], 
             bottom_right_point[1] - top_left_point[1]
         )
-        bottom_right_point = (top_left_point[0] + square_width, top_left_point[1] + square_width)
+        bottom_right_point = (
+            top_left_point[0] + square_width, 
+            top_left_point[1] + square_width
+        )
+
+    return top_left_point, bottom_right_point
+
+
+def draw_with_rectangle_tool(
+        top_left_point, bottom_right_point, 
+        color, img, default_state, width):
+    top_left_point, bottom_right_point = correct_square_angles(
+        top_left_point, bottom_right_point, default_state)
 
     draw = ImageDraw.Draw(img)  
-    draw.rectangle((top_left_point, bottom_right_point), outline=color, width=width)
+    draw.rectangle(
+        (top_left_point, bottom_right_point), outline=color, width=width)
 
     return img
 
@@ -52,12 +63,8 @@ def draw_with_rectangle_tool(
 def draw_with_rhomb_tool(
         top_left_point, bottom_right_point, 
         color, img, default_state, width):
-    if default_state == 1:
-        square_width = max(
-            bottom_right_point[0] - top_left_point[0], 
-            bottom_right_point[1] - top_left_point[1]
-        )
-        bottom_right_point = (top_left_point[0] + square_width, top_left_point[1] + square_width)
+    top_left_point, bottom_right_point = correct_square_angles(
+        top_left_point, bottom_right_point, default_state)
 
     rhomb_angles = [
         (int((bottom_right_point[0] + top_left_point[0])/2), top_left_point[1]),
@@ -74,12 +81,8 @@ def draw_with_rhomb_tool(
 def draw_with_star_tool(
         top_left_point, bottom_right_point, 
         color, img, default_state, width):
-    if default_state == 1:
-        square_width = max(
-            bottom_right_point[0] - top_left_point[0], 
-            bottom_right_point[1] - top_left_point[1]
-        )
-        bottom_right_point = (top_left_point[0] + square_width, top_left_point[1] + square_width)
+    top_left_point, bottom_right_point = correct_square_angles(
+        top_left_point, bottom_right_point, default_state)
 
     a = (bottom_right_point[1] - top_left_point[1])/2.
     b = (bottom_right_point[0] - top_left_point[0])/2.    
@@ -107,12 +110,8 @@ def draw_with_star_tool(
 def draw_with_arrow_right_tool(
         top_left_point, bottom_right_point, 
         color, img, default_state, width):
-    if default_state == 1:
-        square_width = max(
-            bottom_right_point[0] - top_left_point[0], 
-            bottom_right_point[1] - top_left_point[1]
-        )
-        bottom_right_point = (top_left_point[0] + square_width, top_left_point[1] + square_width)
+    top_left_point, bottom_right_point = correct_square_angles(
+        top_left_point, bottom_right_point, default_state)
 
     a = (bottom_right_point[1] - top_left_point[1])/2.
     b = (bottom_right_point[0] - top_left_point[0])/2.    
@@ -144,7 +143,8 @@ def draw_with_line_tool(
         start_point, end_point, color, 
         img, default_state, width):
     if default_state == 1:
-        if abs(end_point[0] - start_point[0]) >= abs(end_point[1] - start_point[1]):
+        if (abs(end_point[0] - start_point[0]) >= 
+                abs(end_point[1] - start_point[1])):
             end_point[1] = start_point[1]
         else:
             end_point[0] = start_point[0]
@@ -220,7 +220,8 @@ def draw_rotating(selected_area, cursor_position, background_color, img):
     if bottom_x > top_x:
         alpha = math.atan((top_y-bottom_y) / float(top_x-bottom_x))    
     else:
-        alpha = math.pi + math.atan((top_y-bottom_y) / float(top_x-bottom_x+1e-9))   
+        alpha = math.pi + math.atan(
+            (top_y-bottom_y) / float(top_x-bottom_x+1e-9))
 
     center_x, center_y = top_left_point[0], bottom_right_point[1]
     for i in range(0, len(pixel_list) - 1):

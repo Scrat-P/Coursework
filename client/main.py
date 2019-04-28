@@ -32,8 +32,15 @@ PURPLE_COLOR = (102, 0, 204)
 MOUSE_CLICK_ACTION_NAME = '<ButtonPress-1>'
 MOUSE_MOTION_ACTION_NAME = '<B1-Motion>'
 MOUSE_RELEASE_ACTION_NAME = '<ButtonRelease-1>'
-SHIFT_PRESS = '<KeyPress-Shift_L>'
-SHIFT_RELEASE = '<KeyRelease-Shift_L>'
+ENTER_ACTION_NAME = '<Enter>'
+LEAVE_ACTION_NAME = '<Leave>'
+SHIFT_PRESS_ACTION_NAME = '<KeyPress-Shift_L>'
+SHIFT_RELEASE_ACTION_NAME = '<KeyRelease-Shift_L>'
+ESCAPE_PRESS_ACTION_NAME = '<KeyPress-Escape>'
+Q_PRESS_ACTION_NAME = '<q>'
+RESIZE_WINDOW_ACTION_NAME = '<Configure>'
+
+WIDTH_LABEL_TEXT = 'Line width'
 
 WATCH_CURSOR = 'watch'
 CROSSHAIR_CURSOR = 'crosshair'
@@ -258,13 +265,13 @@ class ClientApp(dict):
         self.active_tool()
 
     def _init_main_hotkeys(self):
-        self.main_window.bind('<KeyPress-Escape>', self.rollback_operation)
-        self.main_window.bind('<q>', self.undo_canvas)
+        self.main_window.bind(ESCAPE_PRESS_ACTION_NAME, self.rollback_operation)
+        self.main_window.bind(Q_PRESS_ACTION_NAME, self.undo_canvas)
 
         self.main_window.bind(
-            SHIFT_PRESS, lambda event: self.on_key_press())
+            SHIFT_PRESS_ACTION_NAME, lambda event: self.on_key_press())
         self.main_window.bind(
-            SHIFT_RELEASE, lambda event: self.on_key_release())
+            SHIFT_RELEASE_ACTION_NAME, lambda event: self.on_key_release())
         self.default_state = 0
 
     def run_sending_thread(self):
@@ -289,7 +296,7 @@ class ClientApp(dict):
 
         self._show_image_on_canvas(self.img)
 
-        self.canvas.bind('<Configure>', self.configure)
+        self.canvas.bind(RESIZE_WINDOW_ACTION_NAME, self.configure)
 
     def rollback_operation(self, event=None):
         self._show_image_on_canvas(self.img)
@@ -405,9 +412,9 @@ class ClientApp(dict):
     def _create_button(self, toolbar, img, button_name, button_event):
         self[button_name] = Button(toolbar, image=img, command=button_event)
 
-        self[button_name].bind('<Enter>', 
+        self[button_name].bind(ENTER_ACTION_NAME, 
             lambda event: self.on_enter_button(event, button_name))
-        self[button_name].bind('<Leave>', 
+        self[button_name].bind(LEAVE_ACTION_NAME, 
             lambda event: self.on_leave_button(event))
 
         self[button_name].pack(side=LEFT, fill=X)
@@ -459,7 +466,7 @@ class ClientApp(dict):
         self.width_scale.pack(side=RIGHT)
 
         self.line_width_label = Label(self.color_toolbar, 
-            text='Line width:   1 ')
+            text=f'{WIDTH_LABEL_TEXT}:   1 ')
         self.line_width_label.pack(side=RIGHT)
 
     def on_palette_click(self):
@@ -470,7 +477,7 @@ class ClientApp(dict):
 
     def change_line_width(self, new_width):
         self.line_width = int(new_width)
-        self.line_width_label.configure(text=f'Line width:  {new_width:>2} ')
+        self.line_width_label.configure(text=f'{WIDTH_LABEL_TEXT}:  {new_width:>2} ')
 
     def on_change_color(self, color, color_button_name):
         self._activate_button(ACTIVE_COLOR_BUTTON, color_button_name)
