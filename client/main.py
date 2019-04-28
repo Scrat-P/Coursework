@@ -265,7 +265,8 @@ class ClientApp(dict):
         self.active_tool()
 
     def _init_main_hotkeys(self):
-        self.main_window.bind(ESCAPE_PRESS_ACTION_NAME, self.rollback_operation)
+        self.main_window.bind(
+            ESCAPE_PRESS_ACTION_NAME, self.rollback_operation)
         self.main_window.bind(Q_PRESS_ACTION_NAME, self.undo_canvas)
 
         self.main_window.bind(
@@ -331,25 +332,25 @@ class ClientApp(dict):
 
         file_menu = Menu(menubar, tearoff=0)
         menubar.add_cascade(label=FILE_MENU_COMMAND, menu=file_menu)
-        file_menu.add_command(label=NEW_MENU_COMMAND, 
-            command=self.call_new_canvas)
-        file_menu.add_command(label=OPEN_MENU_COMMAND,
-            command=self.call_open_image)
-        file_menu.add_command(label=SAVE_AS_MENU_COMMAND, 
-            command=self.call_save_as_image)
+        file_menu.add_command(
+            label=NEW_MENU_COMMAND, command=self.call_new_canvas)
+        file_menu.add_command(
+            label=OPEN_MENU_COMMAND, command=self.call_open_image)
+        file_menu.add_command(
+            label=SAVE_AS_MENU_COMMAND, command=self.call_save_as_image)
         file_menu.add_separator()
-        file_menu.add_command(label=EXIT_MENU_COMMAND,
-            command=self.frame.quit)
+        file_menu.add_command(
+            label=EXIT_MENU_COMMAND, command=self.frame.quit)
 
         edit_menu = Menu(menubar, tearoff=0)
         menubar.add_cascade(label=EDIT_MENU_COMMAND, menu=edit_menu)
-        edit_menu.add_command(label=ROLLBACK_TOOL_MENU_COMMAND, 
-            command=self.rollback_operation)
-        edit_menu.add_command(label=UNDO_MENU_COMMAND, 
-            command=self.undo_canvas)
+        edit_menu.add_command(
+            label=ROLLBACK_TOOL_MENU_COMMAND, command=self.rollback_operation)
+        edit_menu.add_command(
+            label=UNDO_MENU_COMMAND, command=self.undo_canvas)
 
-        menubar.add_command(label=ABOUT_MENU_COMMAND, 
-            command=self.show_about_app)
+        menubar.add_command(
+            label=ABOUT_MENU_COMMAND, command=self.show_about_app)
 
         self.main_window.config(menu=menubar)
 
@@ -375,7 +376,7 @@ class ClientApp(dict):
     def call_open_image(self):
         file_name = filedialog.askopenfilename(filetypes=OPEN_FILETYPES)
 
-        if file_name is not None:
+        if file_name:
             self.canvas.delete('all')
 
             self.img = Image.open(file_name).resize(
@@ -391,15 +392,21 @@ class ClientApp(dict):
 
     def _init_icon_toolbar(self):
         for color_name, _ in COLOR_BUTTONS:
-            self._create_button_image(f'{color_name}_img', 
-                (COLOR_BUTTONS_WIDTH, COLOR_BUTTONS_HEIGHT))
+            self._create_button_image(
+                f'{color_name}_img', 
+                (COLOR_BUTTONS_WIDTH, COLOR_BUTTONS_HEIGHT)
+            )
 
-        self._create_button_image(f'{COLOR_PALETTE_NAME}_img', 
-            (COLOR_BUTTONS_WIDTH, COLOR_BUTTONS_HEIGHT))
+        self._create_button_image(
+            f'{COLOR_PALETTE_NAME}_img', 
+            (COLOR_BUTTONS_WIDTH, COLOR_BUTTONS_HEIGHT)
+        )
 
         for tool_name in TOOL_BUTTONS:
-            self._create_button_image(f'{tool_name}_img', 
-                (TOOL_BUTTONS_WIDTH, TOOL_BUTTONS_HEIGHT))
+            self._create_button_image(
+                f'{tool_name}_img', 
+                (TOOL_BUTTONS_WIDTH, TOOL_BUTTONS_HEIGHT)
+            )
 
     def on_enter_button(self, event, button_name):
         content = BUTTONS_DESCRIPTION[button_name]
@@ -412,10 +419,14 @@ class ClientApp(dict):
     def _create_button(self, toolbar, img, button_name, button_event):
         self[button_name] = Button(toolbar, image=img, command=button_event)
 
-        self[button_name].bind(ENTER_ACTION_NAME, 
-            lambda event: self.on_enter_button(event, button_name))
-        self[button_name].bind(LEAVE_ACTION_NAME, 
-            lambda event: self.on_leave_button(event))
+        self[button_name].bind(
+            ENTER_ACTION_NAME, 
+            lambda event: self.on_enter_button(event, button_name)
+        )
+        self[button_name].bind(
+            LEAVE_ACTION_NAME, 
+            lambda event: self.on_leave_button(event)
+        )
 
         self[button_name].pack(side=LEFT, fill=X)
 
@@ -447,8 +458,7 @@ class ClientApp(dict):
                 self.color_toolbar, self[f'{color_name}_img'], 
                 f'{color_name}_btn', 
                 (lambda x=color_rgb, y=f'{color_name}_btn': 
-                    self.on_change_color(x, y)
-                )
+                    self.on_change_color(x, y))
             )
 
         self._create_button(
@@ -465,19 +475,20 @@ class ClientApp(dict):
         )
         self.width_scale.pack(side=RIGHT)
 
-        self.line_width_label = Label(self.color_toolbar, 
-            text=f'{WIDTH_LABEL_TEXT}:   1 ')
+        self.line_width_label = Label(
+            self.color_toolbar, text=f'{WIDTH_LABEL_TEXT}:   1 ')
         self.line_width_label.pack(side=RIGHT)
 
     def on_palette_click(self):
-        self._activate_button(ACTIVE_COLOR_BUTTON, 
-            f'{COLOR_PALETTE_NAME}_btn')
+        self._activate_button(
+            ACTIVE_COLOR_BUTTON, f'{COLOR_PALETTE_NAME}_btn')
 
         self.active_color = askcolor(GREEN_COLOR, self.main_window)[0]
 
     def change_line_width(self, new_width):
         self.line_width = int(new_width)
-        self.line_width_label.configure(text=f'{WIDTH_LABEL_TEXT}:  {new_width:>2} ')
+        self.line_width_label.configure(
+            text=f'{WIDTH_LABEL_TEXT}:  {new_width:>2} ')
 
     def on_change_color(self, color, color_button_name):
         self._activate_button(ACTIVE_COLOR_BUTTON, color_button_name)
@@ -539,8 +550,10 @@ class ClientApp(dict):
 
     def _on_button_move(self, event, current_canvas_img):
         cursor_position = (event.x, event.y)
-        self.moved_img = df.draw_moving(self.selected_area, cursor_position, 
-            self.background_color, current_canvas_img)
+        self.moved_img = df.draw_moving(
+            self.selected_area, cursor_position, 
+            self.background_color, current_canvas_img
+        )
         self._show_image_on_canvas(self.moved_img)
 
     def on_button_release_move(self, event):
@@ -631,8 +644,10 @@ class ClientApp(dict):
 
     def _on_button_scale(self, event, current_canvas_img):
         cursor_position = (event.x, event.y)
-        self.scaled_img = df.draw_scaling(self.selected_area, 
-            cursor_position, self.background_color, current_canvas_img)
+        self.scaled_img = df.draw_scaling(
+            self.selected_area, cursor_position, 
+            self.background_color, current_canvas_img
+        )
         self._show_image_on_canvas(self.scaled_img)
 
     def on_button_release_scale(self, event):
@@ -669,11 +684,12 @@ class ClientApp(dict):
 
         self._unbind_mouse_actions()
         self.canvas.config(cursor=ARROW_CURSOR)
-        self.canvas.bind(MOUSE_RELEASE_ACTION_NAME, self.on_button_flip_vertical)
+        self.canvas.bind(
+            MOUSE_RELEASE_ACTION_NAME, self.on_button_flip_vertical)
 
     def on_button_flip_vertical(self, event):
-        self.flipped_img = df.draw_flip_vertical(self.selected_area, 
-            self.background_color, self.img)
+        self.flipped_img = df.draw_flip_vertical(
+            self.selected_area, self.background_color, self.img)
         self._show_image_on_canvas(self.flipped_img)
         self.add_image_to_storage(self.flipped_img)
 
@@ -681,8 +697,8 @@ class ClientApp(dict):
         self.draw_flip_vertical_tool()
 
     def draw_flip_horizontal_tool(self):
-        self._activate_button(ACTIVE_TOOL_BUTTON, 
-            f'{FLIP_HORIZONTAL_TOOL}_btn')
+        self._activate_button(
+            ACTIVE_TOOL_BUTTON, f'{FLIP_HORIZONTAL_TOOL}_btn')
 
         self.canvas.config(cursor=CROSSHAIR_CURSOR)
         self._bind_mouse_actions(
@@ -697,11 +713,12 @@ class ClientApp(dict):
 
         self._unbind_mouse_actions()
         self.canvas.config(cursor=ARROW_CURSOR)
-        self.canvas.bind(MOUSE_RELEASE_ACTION_NAME, self.on_button_flip_horizontal)
+        self.canvas.bind(
+            MOUSE_RELEASE_ACTION_NAME, self.on_button_flip_horizontal)
 
     def on_button_flip_horizontal(self, event):
-        self.flipped_img = df.draw_flip_horizontal(self.selected_area, 
-            self.background_color, self.img)
+        self.flipped_img = df.draw_flip_horizontal(
+            self.selected_area, self.background_color, self.img)
         self._show_image_on_canvas(self.flipped_img)
         self.add_image_to_storage(self.flipped_img)
 
@@ -723,8 +740,8 @@ class ClientApp(dict):
         previous_point = (self.x, self.y)
         current_point = (event.x, event.y)
 
-        self.eraser_img = df.erase_line(previous_point, 
-            current_point, self.background_color, self.img)
+        self.eraser_img = df.erase_line(
+            previous_point, current_point, self.background_color, self.img)
         self._show_image_on_canvas(self.eraser_img)
 
         self.on_button_press(event)
