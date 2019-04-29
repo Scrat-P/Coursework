@@ -38,9 +38,11 @@ class ServerApp:
 
         file_menu = Menu(menubar, tearoff=0)
         menubar.add_cascade(label='File', menu=file_menu)
-        file_menu.add_command(label='Exit', command=self.frame.quit)
+        file_menu.add_command(
+            label='Exit', command=self.frame.quit)
 
-        menubar.add_command(label='About', command=self.show_about_app)
+        menubar.add_command(
+            label='About', command=self.show_about_app)
 
         self.main_window.config(menu=menubar)
 
@@ -48,14 +50,18 @@ class ServerApp:
         messagebox.showinfo(ABOUT_TITLE, ABOUT_MESSAGE)
 
     def _init_canvas(self):
-        self.canvas = Canvas(self.main_window, bg=self.background_color)
+        self.canvas = Canvas(
+            self.main_window, bg=self.background_color)
         self.canvas.pack(expand=1, fill=BOTH)
 
-        self.img = Image.new('RGB', [self.img_width, self.img_height],
-                             self.background_color)
+        self.img = Image.new(
+            'RGB', [self.img_width, self.img_height],
+            self.background_color
+        )
 
         self.canvas.img = ImageTk.PhotoImage(self.img)
-        self.canvas.create_image(0, 0, anchor=NW, image=self.canvas.img)
+        self.canvas.create_image(
+            0, 0, anchor=NW, image=self.canvas.img)
 
         self.canvas.bind('<Configure>', self.configure)
         
@@ -68,25 +74,30 @@ class ServerApp:
                         Image.LANCZOS)
 
         self.canvas.img = ImageTk.PhotoImage(self.img)
-        self.canvas.create_image(0, 0, anchor=NW, image=self.canvas.img)
+        self.canvas.create_image(
+            0, 0, anchor=NW, image=self.canvas.img)
 
     def show_ascii(self):
         self.canvas.img = ImageTk.PhotoImage(self.img)
-        self.canvas.create_image(0, 0, anchor=NW, image=self.canvas.img)
+        self.canvas.create_image(
+            0, 0, anchor=NW, image=self.canvas.img)
 
     def receive_images(self):
         while True:
-            self.img = self.recipient.receive_images(self.scale, self.contrast)
+            self.img = self.recipient.receive_images(
+                self.scale, self.contrast)
 
             self.show_ascii()
 
     def change_image(self, event=None):
-        self.img = self.recipient.change_image(self.scale, self.contrast)
+        self.img = self.recipient.change_image(
+            self.scale, self.contrast)
 
         self.show_ascii()
 
     def _init_setingsbar(self):
-        self.setingsbar = Frame(self.main_window, borderwidth=0, relief=RAISED)
+        self.setingsbar = Frame(
+            self.main_window, borderwidth=0, relief=RAISED)
 
         self.setingsbar.pack(side=BOTTOM, fill=X)
 
@@ -100,7 +111,8 @@ class ServerApp:
         self.width_scale.bind("<ButtonRelease-1>", self.change_image)
         self.width_scale.pack(side=RIGHT)
 
-        self.scale_label = Label(self.setingsbar, text='Scale:   0.1 ',)
+        self.scale_label = Label(
+            self.setingsbar, text='Scale:   0.1 ',)
         self.scale_label.pack(side=RIGHT)
 
         self.contrast = 0.1
@@ -113,7 +125,8 @@ class ServerApp:
         self.width_contrast.bind("<ButtonRelease-1>", self.change_image)
         self.width_contrast.pack(side=RIGHT)
 
-        self.contrast_label = Label(self.setingsbar, text='Contrast:   0.1 ',)
+        self.contrast_label = Label(
+            self.setingsbar, text='Contrast:   0.1 ',)
         self.contrast_label.pack(side=RIGHT)
 
     def change_scale(self, new_scale):
@@ -122,12 +135,14 @@ class ServerApp:
 
     def change_contrast(self, new_contrast):
         self.contrast = float(new_contrast)
-        self.contrast_label.configure(text=f'Contrast:  {new_contrast:>1} ')
+        self.contrast_label.configure(
+            text=f'Contrast:  {new_contrast:>1} ')
 
 
 if __name__ == '__main__':
     main_window = Tk()
-    main_window.geometry(f'{IMG_INITIAL_WIDTH}x{IMG_INITIAL_HEIGHT}')
+    main_window.geometry(
+        f'{IMG_INITIAL_WIDTH}x{IMG_INITIAL_HEIGHT}')
     main_window.style = ttk.Style()
     main_window.style.theme_use('clam')
 

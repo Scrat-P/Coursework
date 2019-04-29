@@ -1,6 +1,6 @@
 import socket
-from converter import Converter
 from PIL import Image
+from converter import Converter
 
 
 TCP_IP = "127.0.0.1"
@@ -12,7 +12,9 @@ class Recipient:
         self.tcp_ip = TCP_IP
         self.tcp_port = TCP_PORT
 
-        self.server_socket = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.server_socket = socket.socket(
+            socket.AF_INET, socket.SOCK_STREAM
+        )
         self.server_socket.bind((self.tcp_ip, self.tcp_port))
         self.server_socket.listen(1)
 
@@ -41,7 +43,8 @@ class Recipient:
         while True:
             temp = self.client_socket.recvfrom(65520)
             self.client_socket.sendto(bytearray("message", "utf-8"),
-                                      (self.tcp_ip, self.tcp_port))
+                (self.tcp_ip, self.tcp_port)
+            )
 
             condition = (
                 all([temp[0][even] == 197 for even in range(0, 6, 2)]) and
