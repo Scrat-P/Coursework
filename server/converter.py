@@ -2,10 +2,6 @@ from PIL import Image, ImageDraw, ImageFont
 import numpy as np
 
 
-SCALE = 1
-CONTRAST = 0.3
-
-
 class Converter():
     def __init__(self, image, scale, contrast):
         self.scale = scale

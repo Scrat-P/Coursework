@@ -19,18 +19,24 @@ class Recipient:
         self.client_socket, _ = self.server_socket.accept()
 
     def change_image(self, scale, contrast):
-        return (Converter(self.image, scale, contrast)
+        self.scale = scale
+        self.contrast = contrast
+
+        return (Converter(self.img, self.scale, self.contrast)
                 .convert()
                 .resize((self.width, self.height), Image.LANCZOS))
 
-    def call_save_as_image(self, img, width, height, scale, contrast):
-        self.image = Image.frombytes("RGB", (width, height), img)
+    def call_save_as_image(self, img, width, height):
+        self.img = Image.frombytes("RGB", (width, height), img)
 
-        return (Converter(self.image, scale, contrast)
+        return (Converter(self.img, self.scale, self.contrast)
                 .convert()
                 .resize((width, height), Image.LANCZOS))
 
     def receive_images(self, scale, contrast):
+        self.scale = scale
+        self.contrast = contrast
+
         img = b''
         while True:
             temp = self.client_socket.recvfrom(65520)
@@ -47,8 +53,6 @@ class Recipient:
                 self.width, self.height = str(size, "utf-8").split(":")
                 self.width, self.height = int(self.width), int(self.height)
 
-                return self.call_save_as_image(
-                    img, self.width, self.height, scale, contrast
-                )
+                return self.call_save_as_image(img, self.width, self.height)
             else:
                 img += temp[0]

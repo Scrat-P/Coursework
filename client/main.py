@@ -6,14 +6,14 @@ from tkinter import filedialog
 from tkinter import messagebox
 from tkcolorpicker import askcolor
 from PIL import Image, ImageTk
-from sender import Sender
-import drawing_functions as df
 from threading import Thread
+import drawing_functions as df
+from sender import Sender
 
 
 ACTIVE_THEME = 'clam'
 APP_TITLE = 'Online Paint'
-IMAGES_FOLDER_PATH = '/Users/didred/Documents/БГУИР/ОСиС/Coursework/client/images'
+IMAGES_FOLDER_PATH = 'images'
 BACKGROUND_COLOR = 'white'
 IMG_INITIAL_WIDTH = 1200
 IMG_INITIAL_HEIGHT = 800

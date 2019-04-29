@@ -80,13 +80,10 @@ class ServerApp:
 
             self.show_ascii()
 
-    def change_image(self):
+    def change_image(self, event=None):
         self.img = self.recipient.change_image(self.scale, self.contrast)
 
         self.show_ascii()
-
-    def updateValue(self, event):
-        print(self.width_scale.get())
 
     def _init_setingsbar(self):
         self.setingsbar = Frame(self.main_window, borderwidth=0, relief=RAISED)
@@ -100,7 +97,7 @@ class ServerApp:
             showvalue=0, resolution=0.05,
             command=self.change_scale
         )
-        self.width_scale.bind("<ButtonRelease-1>", self.updateValue)
+        self.width_scale.bind("<ButtonRelease-1>", self.change_image)
         self.width_scale.pack(side=RIGHT)
 
         self.scale_label = Label(self.setingsbar, text='Scale:   0.1 ',)
@@ -113,6 +110,7 @@ class ServerApp:
             showvalue=0, resolution=0.1,
             command=self.change_contrast
         )
+        self.width_contrast.bind("<ButtonRelease-1>", self.change_image)
         self.width_contrast.pack(side=RIGHT)
 
         self.contrast_label = Label(self.setingsbar, text='Contrast:   0.1 ',)
@@ -122,13 +120,9 @@ class ServerApp:
         self.scale = float(new_scale)
         self.scale_label.configure(text=f'Scale:  {new_scale:>1} ')
 
-        self.change_image()
-
     def change_contrast(self, new_contrast):
         self.contrast = float(new_contrast)
         self.contrast_label.configure(text=f'Contrast:  {new_contrast:>1} ')
-
-        self.change_image()
 
 
 if __name__ == '__main__':
