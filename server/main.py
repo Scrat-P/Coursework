@@ -1,5 +1,6 @@
 from tkinter import *
 from tkinter import ttk
+from tkinter import filedialog
 from tkinter import messagebox
 from PIL import Image, ImageTk
 from threading import Thread
@@ -11,6 +12,11 @@ BACKGROUND_COLOR = 'white'
 IMG_INITIAL_WIDTH = 1200
 IMG_INITIAL_HEIGHT = 800
 ABOUT_TITLE = "About app"
+FILE_MENU_COMMAND = 'File'
+SAVE_AS_MENU_COMMAND = 'Save as...'
+EXIT_MENU_COMMAND = 'Exit'
+ABOUT_MENU_COMMAND = 'About'
+SAVE_AS_MENU_COMMAND = 'Save as...'
 ABOUT_MESSAGE = ("Network graphic ASCII-art editor\n"
                  "© 2019 Baranovich & Yurevich")
 
@@ -37,17 +43,24 @@ class ServerApp:
         menubar = Menu(self.main_window)
 
         file_menu = Menu(menubar, tearoff=0)
-        menubar.add_cascade(label='File', menu=file_menu)
+        menubar.add_cascade(label=FILE_MENU_COMMAND, menu=file_menu)
         file_menu.add_command(
-            label='Exit', command=self.frame.quit)
-
+            label=SAVE_AS_MENU_COMMAND, command=self.call_save_as_image)
+        file_menu.add_command(
+            label=EXIT_MENU_COMMAND, command=self.frame.quit)
         menubar.add_command(
-            label='About', command=self.show_about_app)
+            label=ABOUT_MENU_COMMAND, command=self.show_about_app)
 
         self.main_window.config(menu=menubar)
 
     def show_about_app(self):
         messagebox.showinfo(ABOUT_TITLE, ABOUT_MESSAGE)
+
+    def call_save_as_image(self):
+        file_name = filedialog.asksaveasfilename(defaultextension='.png')
+
+        if file_name is not None:
+            self.img.save(file_name)
 
     def _init_canvas(self):
         self.canvas = Canvas(
